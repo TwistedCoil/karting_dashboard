@@ -1,1321 +1,1358 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
   <meta name="referrer" content="no-referrer">
-  <meta name="color-scheme" content="dark">
-  <title>Karting Dashboard · Telemetría y tabla tóxica entre amigos</title>
+  <title>Apex Grand Prix - Karting Telemetry & Toxic Leaderboard</title>
+  
+  <!-- Chart.js aporta los gráficos (con SRI); los estilos de Tailwind van compilados abajo. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+  <!-- Google Fonts: Orbitron & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
-:root {
-  --bg: #080a0f; --panel: #121722; --card: #181f2e; --line: #263248;
-  --text: #f1f5f9; --muted: #94a3b8; --red: #e10600; --yellow: #ffcc00;
-  --cyan: #00d2be; --purple: #b138dd; --green: #34d399;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0; min-height: 100vh; color: var(--text); background: var(--bg);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background-image:
-    radial-gradient(circle at 10% 20%, rgba(225, 6, 0, .08), transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(0, 210, 190, .06), transparent 40%);
-}
-h1, h2, h3, .big { font-family: "Arial Black", Impact, system-ui, sans-serif; letter-spacing: .02em; }
-h1 { margin: 0; font-size: clamp(1.2rem, 3vw, 1.7rem); }
-h2 { margin: 0 0 .25rem; font-size: 1.05rem; }
-h3 { margin: 0; font-size: .72rem; color: var(--muted); text-transform: uppercase; }
-.grad { background: linear-gradient(90deg, var(--red), var(--yellow), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-code { background: #0c0f17; padding: 0 .3em; border-radius: 4px; }
+    /* Tailwind CSS v3.4.17 (MIT) - compilado para este tablero */
+*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{border:0 solid #e5e7eb;box-sizing:border-box}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:Inter,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-tap-highlight-color:transparent}body{line-height:inherit;margin:0}hr{border-top-width:1px;color:inherit;height:0}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-size:1em;font-variation-settings:normal}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{border-collapse:collapse;border-color:inherit;text-indent:0}button,input,optgroup,select,textarea{color:inherit;font-family:inherit;font-feature-settings:inherit;font-size:100%;font-variation-settings:inherit;font-weight:inherit;letter-spacing:inherit;line-height:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{color:#9ca3af;opacity:1}input::placeholder,textarea::placeholder{color:#9ca3af;opacity:1}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{height:auto;max-width:100%}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.bottom-5{bottom:1.25rem}.right-0{right:0}.right-3{right:.75rem}.right-4{right:1rem}.right-5{right:1.25rem}.top-0{top:0}.top-3\.5{top:.875rem}.top-4{top:1rem}.z-40{z-index:40}.z-50{z-index:50}.col-span-full{grid-column:1/-1}.mx-auto{margin-left:auto;margin-right:auto}.my-1{margin-top:.25rem}.mb-1,.my-1{margin-bottom:.25rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.grid{display:grid}.hidden{display:none}.h-12{height:3rem}.h-2{height:.5rem}.h-3\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-72{height:18rem}.max-h-60{max-height:15rem}.min-h-screen{min-height:100vh}.w-12{width:3rem}.w-14{width:3.5rem}.w-2{width:.5rem}.w-3\.5{width:.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-56{width:14rem}.w-6{width:1.5rem}.w-full{width:100%}.max-w-7xl{max-width:80rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.flex-grow{flex-grow:1}.translate-y-24{--tw-translate-y:6rem}.transform,.translate-y-24{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-2\.5{gap:.625rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-bottom:calc(.375rem*var(--tw-space-y-reverse));margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-bottom:calc(.75rem*var(--tw-space-y-reverse));margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-bottom:calc(1rem*var(--tw-space-y-reverse));margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)))}.space-y-5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-bottom:calc(1.25rem*var(--tw-space-y-reverse));margin-top:calc(1.25rem*(1 - var(--tw-space-y-reverse)))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-bottom:calc(1.5rem*var(--tw-space-y-reverse));margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)))}.space-y-8>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-bottom:calc(2rem*var(--tw-space-y-reverse));margin-top:calc(2rem*(1 - var(--tw-space-y-reverse)))}.divide-y>:not([hidden])~:not([hidden]){--tw-divide-y-reverse:0;border-bottom-width:calc(1px*var(--tw-divide-y-reverse));border-top-width:calc(1px*(1 - var(--tw-divide-y-reverse)))}.divide-slate-800>:not([hidden])~:not([hidden]){--tw-divide-opacity:1;border-color:rgb(30 41 59/var(--tw-divide-opacity,1))}.divide-slate-800\/80>:not([hidden])~:not([hidden]){border-color:rgba(30,41,59,.8)}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-500\/40{border-color:rgba(245,158,11,.4)}.border-amber-700\/50{border-color:rgba(180,83,9,.5)}.border-cyan-500\/40{border-color:rgba(6,182,212,.4)}.border-emerald-700\/50{border-color:rgba(4,120,87,.5)}.border-emerald-800\/50{border-color:rgba(6,95,70,.5)}.border-purple-500\/30{border-color:rgba(168,85,247,.3)}.border-purple-500\/40{border-color:rgba(168,85,247,.4)}.border-purple-500\/50{border-color:rgba(168,85,247,.5)}.border-racing-cyan{--tw-border-opacity:1;border-color:rgb(0 210 190/var(--tw-border-opacity,1))}.border-racing-cyan\/40{border-color:rgba(0,210,190,.4)}.border-racing-red\/30{border-color:rgba(225,6,0,.3)}.border-racing-red\/40{border-color:rgba(225,6,0,.4)}.border-racing-red\/60{border-color:rgba(225,6,0,.6)}.border-racing-yellow\/40{border-color:rgba(255,204,0,.4)}.border-red-500\/30{border-color:rgba(239,68,68,.3)}.border-red-700\/50{border-color:rgba(185,28,28,.5)}.border-red-800\/50{border-color:rgba(153,27,27,.5)}.border-rose-800\/50{border-color:rgba(159,18,57,.5)}.border-rose-800\/60{border-color:rgba(159,18,57,.6)}.border-slate-600{--tw-border-opacity:1;border-color:rgb(71 85 105/var(--tw-border-opacity,1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85/var(--tw-border-opacity,1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59/var(--tw-border-opacity,1))}.border-slate-800\/60{border-color:rgba(30,41,59,.6)}.border-slate-800\/80{border-color:rgba(30,41,59,.8)}.border-slate-900{--tw-border-opacity:1;border-color:rgb(15 23 42/var(--tw-border-opacity,1))}.border-yellow-700\/50{border-color:rgba(161,98,7,.5)}.border-yellow-800\/50{border-color:rgba(133,77,14,.5)}.bg-amber-950{--tw-bg-opacity:1;background-color:rgb(69 26 3/var(--tw-bg-opacity,1))}.bg-amber-950\/60{background-color:rgba(69,26,3,.6)}.bg-black\/80{background-color:rgba(0,0,0,.8)}.bg-cyan-500\/20{background-color:rgba(6,182,212,.2)}.bg-cyan-950\/60{background-color:rgba(8,51,68,.6)}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(52 211 153/var(--tw-bg-opacity,1))}.bg-emerald-950\/60{background-color:rgba(2,44,34,.6)}.bg-emerald-950\/80{background-color:rgba(2,44,34,.8)}.bg-purple-500\/20{background-color:rgba(168,85,247,.2)}.bg-purple-900\/40{background-color:rgba(88,28,135,.4)}.bg-purple-950{--tw-bg-opacity:1;background-color:rgb(59 7 100/var(--tw-bg-opacity,1))}.bg-purple-950\/80{background-color:rgba(59,7,100,.8)}.bg-racing-cyan\/20{background-color:rgba(0,210,190,.2)}.bg-racing-panel{--tw-bg-opacity:1;background-color:rgb(18 23 34/var(--tw-bg-opacity,1))}.bg-racing-panel\/90{background-color:rgba(18,23,34,.9)}.bg-racing-red{--tw-bg-opacity:1;background-color:rgb(225 6 0/var(--tw-bg-opacity,1))}.bg-racing-red\/10{background-color:rgba(225,6,0,.1)}.bg-racing-red\/20{background-color:rgba(225,6,0,.2)}.bg-racing-yellow\/20{background-color:rgba(255,204,0,.2)}.bg-red-950\/60{background-color:rgba(69,10,10,.6)}.bg-red-950\/80{background-color:rgba(69,10,10,.8)}.bg-rose-950\/60{background-color:rgba(76,5,25,.6)}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59/var(--tw-bg-opacity,1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42/var(--tw-bg-opacity,1))}.bg-slate-900\/80{background-color:rgba(15,23,42,.8)}.bg-slate-900\/90{background-color:rgba(15,23,42,.9)}.bg-slate-950{--tw-bg-opacity:1;background-color:rgb(2 6 23/var(--tw-bg-opacity,1))}.bg-slate-950\/40{background-color:rgba(2,6,23,.4)}.bg-slate-950\/60{background-color:rgba(2,6,23,.6)}.bg-slate-950\/80{background-color:rgba(2,6,23,.8)}.bg-yellow-950\/60{background-color:rgba(66,32,6,.6)}.bg-yellow-950\/80{background-color:rgba(66,32,6,.8)}.bg-gradient-to-b{background-image:linear-gradient(to bottom,var(--tw-gradient-stops))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right,var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right,var(--tw-gradient-stops))}.from-amber-500{--tw-gradient-from:#f59e0b var(--tw-gradient-from-position);--tw-gradient-to:rgba(245,158,11,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-amber-950\/20{--tw-gradient-from:rgba(69,26,3,.2) var(--tw-gradient-from-position);--tw-gradient-to:rgba(69,26,3,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-cyan-500{--tw-gradient-from:#06b6d4 var(--tw-gradient-from-position);--tw-gradient-to:rgba(6,182,212,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-cyan-950\/20{--tw-gradient-from:rgba(8,51,68,.2) var(--tw-gradient-from-position);--tw-gradient-to:rgba(8,51,68,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-cyan-950\/30{--tw-gradient-from:rgba(8,51,68,.3) var(--tw-gradient-from-position);--tw-gradient-to:rgba(8,51,68,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-purple-950\/30{--tw-gradient-from:rgba(59,7,100,.3) var(--tw-gradient-from-position);--tw-gradient-to:rgba(59,7,100,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-racing-red{--tw-gradient-from:#e10600 var(--tw-gradient-from-position);--tw-gradient-to:rgba(225,6,0,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-racing-yellow{--tw-gradient-from:#fc0 var(--tw-gradient-from-position);--tw-gradient-to:rgba(255,204,0,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-slate-900{--tw-gradient-from:#0f172a var(--tw-gradient-from-position);--tw-gradient-to:rgba(15,23,42,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.via-racing-panel{--tw-gradient-to:rgba(18,23,34,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),#121722 var(--tw-gradient-via-position),var(--tw-gradient-to)}.via-racing-red{--tw-gradient-to:rgba(225,6,0,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),#e10600 var(--tw-gradient-via-position),var(--tw-gradient-to)}.via-racing-yellow{--tw-gradient-to:rgba(255,204,0,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),#fc0 var(--tw-gradient-via-position),var(--tw-gradient-to)}.via-red-600{--tw-gradient-to:rgba(220,38,38,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),#dc2626 var(--tw-gradient-via-position),var(--tw-gradient-to)}.to-amber-500{--tw-gradient-to:#f59e0b var(--tw-gradient-to-position)}.to-blue-600{--tw-gradient-to:#2563eb var(--tw-gradient-to-position)}.to-orange-600{--tw-gradient-to:#ea580c var(--tw-gradient-to-position)}.to-purple-400{--tw-gradient-to:#c084fc var(--tw-gradient-to-position)}.to-racing-cyan{--tw-gradient-to:#00d2be var(--tw-gradient-to-position)}.to-rose-700{--tw-gradient-to:#be123c var(--tw-gradient-to-position)}.to-slate-900{--tw-gradient-to:#0f172a var(--tw-gradient-to-position)}.to-slate-950{--tw-gradient-to:#020617 var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.p-1{padding:.25rem}.p-10{padding:2.5rem}.p-2\.5{padding:.625rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-bottom:.125rem;padding-top:.125rem}.py-1{padding-bottom:.25rem;padding-top:.25rem}.py-1\.5{padding-bottom:.375rem;padding-top:.375rem}.py-10{padding-bottom:2.5rem;padding-top:2.5rem}.py-2{padding-bottom:.5rem;padding-top:.5rem}.py-2\.5{padding-bottom:.625rem;padding-top:.625rem}.py-3{padding-bottom:.75rem;padding-top:.75rem}.py-3\.5{padding-bottom:.875rem;padding-top:.875rem}.py-4{padding-bottom:1rem;padding-top:1rem}.py-6{padding-bottom:1.5rem;padding-top:1.5rem}.pb-4{padding-bottom:1rem}.pt-2{padding-top:.5rem}.pt-3{padding-top:.75rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-f1{font-family:Orbitron,sans-serif}.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace}.font-sans{font-family:Inter,sans-serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-wider{letter-spacing:.05em}.tracking-widest{letter-spacing:.1em}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77/var(--tw-text-opacity,1))}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11/var(--tw-text-opacity,1))}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249/var(--tw-text-opacity,1))}.text-cyan-300\/80{color:rgba(103,232,249,.8)}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183/var(--tw-text-opacity,1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153/var(--tw-text-opacity,1))}.text-emerald-400\/80{color:rgba(52,211,153,.8)}.text-purple-300{--tw-text-opacity:1;color:rgb(216 180 254/var(--tw-text-opacity,1))}.text-purple-300\/80{color:rgba(216,180,254,.8)}.text-purple-400{--tw-text-opacity:1;color:rgb(192 132 252/var(--tw-text-opacity,1))}.text-racing-cyan{--tw-text-opacity:1;color:rgb(0 210 190/var(--tw-text-opacity,1))}.text-racing-red{--tw-text-opacity:1;color:rgb(225 6 0/var(--tw-text-opacity,1))}.text-racing-yellow{--tw-text-opacity:1;color:rgb(255 204 0/var(--tw-text-opacity,1))}.text-red-300{--tw-text-opacity:1;color:rgb(252 165 165/var(--tw-text-opacity,1))}.text-red-400{--tw-text-opacity:1;color:rgb(248 113 113/var(--tw-text-opacity,1))}.text-red-400\/80{color:hsla(0,91%,71%,.8)}.text-rose-300{--tw-text-opacity:1;color:rgb(253 164 175/var(--tw-text-opacity,1))}.text-rose-400{--tw-text-opacity:1;color:rgb(251 113 133/var(--tw-text-opacity,1))}.text-rose-400\/80{color:rgba(251,113,133,.8)}.text-rose-500{--tw-text-opacity:1;color:rgb(244 63 94/var(--tw-text-opacity,1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249/var(--tw-text-opacity,1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240/var(--tw-text-opacity,1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225/var(--tw-text-opacity,1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.text-yellow-300{--tw-text-opacity:1;color:rgb(253 224 71/var(--tw-text-opacity,1))}.text-yellow-400{--tw-text-opacity:1;color:rgb(250 204 21/var(--tw-text-opacity,1))}.text-yellow-400\/80{color:rgba(250,204,21,.8)}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.shadow{--tw-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color),0 1px 2px -1px var(--tw-shadow-color)}.shadow,.shadow-2xl{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-neon-purple{--tw-shadow:0 0 20px -2px rgba(177,56,221,.45);--tw-shadow-colored:0 0 20px -2px var(--tw-shadow-color)}.shadow-neon-purple,.shadow-neon-red{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-neon-red{--tw-shadow:0 0 20px -2px rgba(225,6,0,.45);--tw-shadow-colored:0 0 20px -2px var(--tw-shadow-color)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color),0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-red-500\/40{--tw-ring-color:rgba(239,68,68,.4)}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px)}.backdrop-blur,.backdrop-blur-sm{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px)}.transition-all{transition-duration:.15s;transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1)}.transition-colors{transition-duration:.15s;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1)}.duration-300{transition-duration:.3s}.selection\:bg-racing-red ::-moz-selection{--tw-bg-opacity:1;background-color:rgb(225 6 0/var(--tw-bg-opacity,1))}.selection\:bg-racing-red ::selection{--tw-bg-opacity:1;background-color:rgb(225 6 0/var(--tw-bg-opacity,1))}.selection\:text-white ::-moz-selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.selection\:text-white ::selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.selection\:bg-racing-red::-moz-selection{--tw-bg-opacity:1;background-color:rgb(225 6 0/var(--tw-bg-opacity,1))}.selection\:bg-racing-red::selection{--tw-bg-opacity:1;background-color:rgb(225 6 0/var(--tw-bg-opacity,1))}.selection\:text-white::-moz-selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.selection\:text-white::selection{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.last\:border-0:last-child{border-width:0}.hover\:border-amber-400:hover{--tw-border-opacity:1;border-color:rgb(251 191 36/var(--tw-border-opacity,1))}.hover\:border-purple-400:hover{--tw-border-opacity:1;border-color:rgb(192 132 252/var(--tw-border-opacity,1))}.hover\:border-racing-cyan:hover{--tw-border-opacity:1;border-color:rgb(0 210 190/var(--tw-border-opacity,1))}.hover\:border-slate-600:hover{--tw-border-opacity:1;border-color:rgb(71 85 105/var(--tw-border-opacity,1))}.hover\:bg-rose-900\/60:hover{background-color:rgba(136,19,55,.6)}.hover\:bg-rose-950\/60:hover{background-color:rgba(76,5,25,.6)}.hover\:bg-slate-700:hover{--tw-bg-opacity:1;background-color:rgb(51 65 85/var(--tw-bg-opacity,1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59/var(--tw-bg-opacity,1))}.hover\:bg-slate-900:hover{--tw-bg-opacity:1;background-color:rgb(15 23 42/var(--tw-bg-opacity,1))}.hover\:bg-slate-900\/80:hover{background-color:rgba(15,23,42,.8)}.hover\:from-cyan-400:hover{--tw-gradient-from:#22d3ee var(--tw-gradient-from-position);--tw-gradient-to:rgba(34,211,238,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.hover\:from-rose-600:hover{--tw-gradient-from:#e11d48 var(--tw-gradient-from-position);--tw-gradient-to:rgba(225,29,72,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.hover\:to-blue-500:hover{--tw-gradient-to:#3b82f6 var(--tw-gradient-to-position)}.hover\:to-racing-red:hover{--tw-gradient-to:#e10600 var(--tw-gradient-to-position)}.hover\:text-rose-300:hover{--tw-text-opacity:1;color:rgb(253 164 175/var(--tw-text-opacity,1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\:ring-racing-cyan:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(0 210 190/var(--tw-ring-opacity,1))}.focus\:ring-racing-red:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(225 6 0/var(--tw-ring-opacity,1))}.focus\:ring-racing-yellow:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(255 204 0/var(--tw-ring-opacity,1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width:640px){.sm\:h-80{height:20rem}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}}@media (min-width:768px){.md\:w-48{width:12rem}.md\:w-52{width:13rem}.md\:w-auto{width:auto}.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}.md\:p-6{padding:1.5rem}.md\:text-right{text-align:right}.md\:text-2xl{font-size:1.5rem;line-height:2rem}.md\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width:1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.lg\:grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}.lg\:flex-row{flex-direction:row}.lg\:items-center{align-items:center}.lg\:px-8{padding-left:2rem;padding-right:2rem}}
+  </style>
 
-.topbar { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; padding: .75rem 1.25rem; background: rgba(18, 23, 34, .92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-.brand { display: flex; gap: .75rem; align-items: center; }
-.logo { display: grid; place-items: center; width: 3rem; height: 3rem; font-size: 1.5rem; border-radius: .75rem; background: linear-gradient(135deg, var(--red), #f59e0b); }
-.flag { font-size: .68rem; color: var(--green); font-family: ui-monospace, monospace; }
-.dot { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; background: var(--green); }
-.actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+  <style>
+    body {
+      background-color: #080a0f;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(225, 6, 0, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 210, 190, 0.06) 0%, transparent 40%),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.015) 0px, rgba(255, 255, 255, 0.015) 2px, transparent 2px, transparent 10px);
+    }
+    .glow-f1-purple { text-shadow: 0 0 10px rgba(177, 56, 221, 0.7); }
+    .glow-f1-red { text-shadow: 0 0 10px rgba(225, 6, 0, 0.7); }
+    .glow-f1-yellow { text-shadow: 0 0 10px rgba(255, 204, 0, 0.7); }
 
-.btn { display: inline-block; cursor: pointer; padding: .55rem .9rem; border-radius: .7rem; border: 1px solid var(--line); background: #1e2638; color: var(--text); font: inherit; font-size: .82rem; font-weight: 600; }
-.btn:hover { background: #28324a; }
-.btn:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
-.btn.primary { background: linear-gradient(90deg, var(--red), #be123c); border-color: transparent; }
-.btn.danger { color: #fca5a5; border-color: #7f1d1d; background: #2a1215; }
-.btn.small { padding: .3rem .6rem; font-size: .72rem; }
-
-main { max-width: 80rem; margin: 0 auto; padding: 1.25rem; display: grid; gap: 1.5rem; }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 1rem; padding: 1.1rem; }
-.sub { margin: 0 0 .8rem; color: var(--muted); font-size: .8rem; }
-.note { margin: 0; color: var(--yellow); font-size: .8rem; flex-basis: 100%; }
-.error { color: #fca5a5; font-size: .8rem; margin: 0; }
-.hint { color: var(--muted); font-size: .75rem; margin: 0; }
-.section-title { font-size: 1.15rem; margin: 0; }
-.empty { text-align: center; }
-.danger-zone { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
-.danger-zone .sub { flex-basis: 100%; margin: 0; }
-.danger-zone h2 { flex-basis: 100%; }
-
-.filters { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; }
-label { display: grid; gap: .25rem; font-size: .72rem; color: var(--muted); text-transform: uppercase; font-weight: 600; }
-select, input[type="text"], input[type="number"], input[type="date"] { background: #0c0f17; color: var(--text); border: 1px solid var(--line); border-radius: .6rem; padding: .5rem .6rem; font: inherit; font-size: .85rem; text-transform: none; }
-.seg { display: flex; border: 1px solid var(--line); border-radius: .7rem; overflow: hidden; }
-.seg button { background: #0c0f17; color: var(--muted); border: 0; padding: .55rem .9rem; font: inherit; font-size: .8rem; cursor: pointer; }
-.seg button.active { background: var(--red); color: #fff; }
-
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; }
-.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 1rem; padding: 1rem; }
-.kpi p { margin: .2rem 0 0; font-size: .75rem; color: var(--muted); }
-.big { font-size: 1.7rem; margin-top: .3rem; }
-.purple { color: #d28cf0; }
-
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
-th { text-align: left; font-size: .68rem; text-transform: uppercase; color: var(--muted); padding: .5rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
-td { padding: .55rem .6rem; border-bottom: 1px solid #1a2232; white-space: nowrap; }
-.r { text-align: right; }
-tbody tr:hover { background: #151c2b; }
-.mono { font-family: ui-monospace, monospace; }
-.leader { color: #d28cf0; font-weight: 700; }
-.pill { padding: .1rem .5rem; border-radius: .4rem; font-size: .68rem; border: 1px solid; font-family: ui-monospace, monospace; }
-.pill.ok { color: #6ee7b7; border-color: #047857; background: #052e22; }
-.pill.mid { color: #fcd34d; border-color: #a16207; background: #2d2305; }
-.pill.bad { color: #fca5a5; border-color: #b91c1c; background: #2a1215; }
-
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1rem; margin-top: .75rem; }
-.card { background: linear-gradient(135deg, #0f1420, var(--card)); border: 1px solid var(--line); border-radius: 1rem; padding: 1rem; display: grid; gap: .5rem; }
-.card .emoji { font-size: 1.8rem; }
-.card h4 { margin: 0; font-size: .85rem; font-family: "Arial Black", Impact, sans-serif; }
-.card .desc { margin: 0; font-size: .75rem; color: var(--muted); }
-.card .who { font-weight: 700; }
-.card .val { font-size: 1.3rem; font-weight: 900; color: var(--yellow); }
-.card .detail { font-size: .7rem; color: var(--muted); font-family: ui-monospace, monospace; }
-.card .quip { font-size: .7rem; font-style: italic; color: #cbd5e1; }
-
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: .75rem; margin-bottom: .75rem; }
-.stat { background: #0c0f17; border: 1px solid var(--line); border-radius: .8rem; padding: .75rem; }
-.stat .k { font-size: .68rem; color: var(--muted); text-transform: uppercase; }
-.stat .v { font-size: 1.15rem; font-weight: 800; margin: .2rem 0; }
-.stat .d { font-size: .72rem; color: var(--muted); }
-.up { color: var(--green); }
-.down { color: #f87171; }
-
-.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1rem; }
-.chart-box { position: relative; height: 18rem; }
-.row-head { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; margin-bottom: .75rem; }
-.row-head h2 { margin-right: auto; }
-
-dialog { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 1rem; padding: 1.25rem; width: min(26rem, 92vw); }
-dialog::backdrop { background: rgba(0, 0, 0, .65); }
-dialog form { display: grid; gap: .8rem; }
-.dialog-actions { display: flex; justify-content: flex-end; gap: .5rem; }
-
-.toast { position: fixed; right: 1rem; bottom: 1rem; z-index: 30; max-width: 22rem; background: #064e3b; border: 1px solid #047857; padding: .7rem 1rem; border-radius: .8rem; font-size: .85rem; }
-.toast.err { background: #450a0a; border-color: #b91c1c; }
-footer { text-align: center; color: var(--muted); font-size: .72rem; padding: 1.5rem; }
-[hidden] { display: none !important; }
-</style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0c0f17; }
+    ::-webkit-scrollbar-thumb { background: #263248; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #e10600; }
+  </style>
 </head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="logo" aria-hidden="true">🏎️</span>
-      <div>
-        <div class="flag"><span class="dot"></span> BANDERA VERDE · datos solo en tu navegador</div>
-        <h1>KARTING <span class="grad">DASHBOARD</span></h1>
+
+<body class="text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-racing-red selection:text-white">
+
+  <!-- TOP RACING TELEMETRY HEADER -->
+  <header class="border-b border-slate-800 bg-racing-panel/90 backdrop-blur sticky top-0 z-40 px-4 lg:px-8 py-3 shadow-2xl">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Logo and Track info -->
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-racing-red via-red-600 to-amber-500 flex items-center justify-center shadow-neon-red ring-2 ring-red-500/40">
+          <span class="text-2xl">🏎️</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-f1 tracking-widest text-racing-red uppercase px-2 py-0.5 bg-red-950/80 rounded border border-red-500/30">CIRCUITO GP INDOOR</span>
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-[11px] text-emerald-400 font-mono">BANDERA VERDE</span>
+          </div>
+          <h1 class="text-xl md:text-2xl font-black font-f1 tracking-tight text-white flex items-center gap-2">
+            APEX KARTING <span class="text-transparent bg-clip-text bg-gradient-to-r from-racing-red via-racing-yellow to-racing-cyan">TELEMETRY</span>
+          </h1>
+        </div>
       </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <button id="btnOpenLapModal" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-racing-red to-rose-700 hover:from-rose-600 hover:to-racing-red text-white font-bold text-sm shadow-neon-red active:scale-95 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Registrar Vuelta
+        </button>
+
+        <button id="btnOpenDriverModal" class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-sm active:scale-95 transition-all">
+          <svg class="w-4 h-4 text-racing-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+          + Agregar Piloto
+        </button>
+
+        <button id="btnOpenTrackModal" class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-sm active:scale-95 transition-all">
+          <svg class="w-4 h-4 text-racing-yellow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          + Pista
+        </button>
+
+        <!-- JSON Backup Dropdown -->
+        <div class="relative inline-block text-left" id="moreActionsDropdown">
+          <button id="btnMoreActions" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-medium text-xs">
+            <svg class="w-4 h-4 text-racing-yellow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            <span>Datos y respaldos</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="moreMenu" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl py-1.5 text-xs z-50">
+            <button id="btnExportJSON" class="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-slate-200 flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span>Exportar BBDD (.JSON)</span>
+            </button>
+            <label for="importFileInput" class="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-slate-200 flex items-center gap-2 cursor-pointer">
+              <svg class="w-4 h-4 text-racing-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              <span>Importar / Restaurar (.JSON)</span>
+            </label>
+            <input type="file" id="importFileInput" accept=".json,application/json" class="hidden">
+            <div class="border-t border-slate-800 my-1"></div>
+            <button id="btnLoadDemo" class="w-full text-left px-4 py-2.5 hover:bg-slate-800 text-slate-200 flex items-center gap-2">
+              <span class="w-4 text-center">🎲</span>
+              <span>Cargar datos de ejemplo</span>
+            </button>
+            <button id="btnResetData" class="w-full text-left px-4 py-2.5 hover:bg-rose-950/60 text-red-400 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>Borrar todos los datos</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
-    <nav class="actions" aria-label="Acciones">
-      <button id="btnAddLap" class="btn primary" type="button">+ Registrar vuelta</button>
-      <button id="btnAddDriver" class="btn" type="button">+ Piloto</button>
-      <button id="btnAddTrack" class="btn" type="button">+ Pista</button>
-      <button id="btnExport" class="btn" type="button">Exportar JSON</button>
-      <label class="btn" for="importFile">Importar JSON</label>
-      <input id="importFile" type="file" accept=".json,application/json" hidden>
-    </nav>
   </header>
 
-  <main>
-    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <!-- MAIN VIEW -->
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 w-full flex-grow space-y-8">
 
-    <section class="panel filters" aria-label="Filtros">
-      <label>Pista
-        <select id="trackFilter"></select>
-      </label>
-      <label>Sesión
-        <select id="dateFilter"></select>
-      </label>
-      <div class="seg" role="group" aria-label="Ámbito">
-        <button type="button" data-scope="daily" class="active">Tanda del día</button>
-        <button type="button" data-scope="historic">Histórico</button>
+    <!-- DATE / SESSION SELECTOR BAR -->
+    <div class="bg-gradient-to-r from-slate-900 via-racing-panel to-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+      <div class="flex items-center gap-3">
+        <div class="p-3 bg-racing-red/10 border border-racing-red/30 rounded-xl">
+          <span class="text-xl">🏁</span>
+        </div>
+        <div>
+          <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tanda / GP del Día</h2>
+          <div class="flex items-center gap-2">
+            <span class="text-lg md:text-xl font-bold font-f1 text-white" id="selectedDateDisplay">2026-10-30</span>
+            <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700 font-mono" id="totalLapsToday">0 vueltas</span>
+          </div>
+        </div>
       </div>
-      <label>Ordenar por
-        <select id="sortFilter">
-          <option value="best">🟣 Mejor vuelta</option>
-          <option value="avg">🎯 Promedio</option>
-          <option value="clean">🧼 Promedio limpio (≤107%)</option>
-          <option value="consistency">🤖 Regularidad</option>
+
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <label for="trackFilter" class="text-xs font-medium text-slate-400">Pista:</label>
+        <select id="trackFilter" class="bg-slate-800 text-white font-medium text-sm rounded-xl px-4 py-2 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-racing-red w-full md:w-52">
+          <!-- Populated by JS -->
         </select>
-      </label>
-      <p id="trackNote" class="note" hidden>⚠️ Estás mezclando pistas distintas: los tiempos no son comparables entre circuitos.</p>
-    </section>
-
-    <section id="emptyState" class="panel empty" hidden>
-      <h2>Aún no hay vueltas</h2>
-      <p>Agrega pilotos y registra vueltas, o carga datos de ejemplo para ver todo el tablero en acción.</p>
-      <button id="btnDemo" class="btn primary" type="button">Cargar datos de ejemplo</button>
-    </section>
-
-    <div id="dashboard">
-      <section class="kpis" aria-label="Resumen">
-        <article class="kpi"><h3>Vuelta más rápida</h3><div id="kpiPole" class="big purple">--.---</div><p id="kpiPoleWho">--</p></article>
-        <article class="kpi"><h3>Promedio limpio</h3><div id="kpiClean" class="big">--.---</div><p>Vueltas ≤ 107% de la mejor de cada piloto</p></article>
-        <article class="kpi"><h3>Pole vs último</h3><div id="kpiSpread" class="big">+0.000s</div><p id="kpiSpreadWho">--</p></article>
-        <article class="kpi"><h3>Grupo</h3><div id="kpiGroup" class="big">0</div><p id="kpiGroupDetail">pilotos · vueltas</p></article>
-      </section>
-
-      <section class="panel" aria-labelledby="hGrid">
-        <h2 id="hGrid">Parrilla de tiempos</h2>
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>Pos</th><th>Piloto</th><th class="r">Mejor</th><th class="r">Promedio</th><th class="r">Mediana</th>
-              <th class="r">Limpio</th><th class="r">± Desv.</th><th class="r">Gap pole</th><th class="r">Intervalo</th><th class="r">Vueltas</th><th>Ritmo</th>
-            </tr></thead>
-            <tbody id="gridBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section aria-labelledby="hTrophies">
-        <h2 id="hTrophies" class="section-title">🏆 Premios tóxicos</h2>
-        <p class="sub">Récords absurdos, aspirantes a Verstappen y los que deberían andar en triciclo. Todo es recreativo.</p>
-        <div id="trophies" class="cards"></div>
-      </section>
-
-      <section class="panel" aria-labelledby="hFun">
-        <h2 id="hFun">📈 Tendencias y promedios del grupo</h2>
-        <div id="groupStats" class="stat-grid"></div>
-      </section>
-
-      <section class="two-col">
-        <article class="panel">
-          <h2>Telemetría por vuelta</h2>
-          <p class="sub">Más abajo = más rápido.</p>
-          <div class="chart-box"><canvas id="lapChart" aria-label="Gráfico de tiempos por vuelta" role="img"></canvas></div>
-          <p id="chartFallback" class="note" hidden>No se pudo cargar Chart.js; el resto del tablero funciona igual.</p>
-        </article>
-        <article class="panel">
-          <h2>Mejor vuelta por sesión</h2>
-          <p class="sub">Evolución del ritmo de cada piloto entre fechas.</p>
-          <div class="chart-box"><canvas id="sessionChart" aria-label="Mejor vuelta por sesión" role="img"></canvas></div>
-        </article>
-      </section>
-
-      <section class="panel" aria-labelledby="hDriver">
-        <div class="row-head">
-          <h2 id="hDriver">Ficha individual</h2>
-          <label>Piloto <select id="driverSelect"></select></label>
-          <button id="btnDeleteDriver" class="btn danger small" type="button">Eliminar piloto</button>
-        </div>
-        <div id="driverCards" class="stat-grid"></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Fecha</th><th>Pista</th><th class="r">Vuelta</th><th class="r">Tiempo</th><th class="r">Δ vs PB</th><th></th></tr></thead>
-            <tbody id="historyBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="panel" aria-labelledby="hH2H">
-        <div class="row-head">
-          <h2 id="hH2H">⚔️ Cara a cara</h2>
-          <label>Piloto A <select id="h2hA"></select></label>
-          <label>Piloto B <select id="h2hB"></select></label>
-        </div>
-        <div id="h2hResult" class="stat-grid"></div>
-      </section>
+        <label for="dateFilter" class="text-xs font-medium text-slate-400">Sesión:</label>
+        <select id="dateFilter" class="bg-slate-800 text-white font-medium text-sm rounded-xl px-4 py-2 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-racing-red w-full md:w-48">
+          <!-- Populated by JS -->
+        </select>
+      </div>
+      <p id="trackNote" class="hidden text-xs text-racing-yellow w-full text-center md:text-right">⚠️ Estás mezclando pistas distintas: los tiempos no son comparables entre circuitos.</p>
     </div>
 
-    <section class="panel danger-zone">
-      <h2>Datos</h2>
-      <p class="sub">Todo vive en el <code>localStorage</code> de este navegador. Exporta respaldos periódicamente.</p>
-      <button id="btnDemo2" class="btn" type="button">Cargar datos de ejemplo</button>
-      <button id="btnReset" class="btn danger" type="button">Borrar todos los datos</button>
+    <!-- ESTADO VACÍO -->
+    <section id="emptyState" class="hidden bg-racing-panel border border-slate-800 rounded-2xl p-10 text-center shadow-xl space-y-3">
+      <div class="text-4xl">🏁</div>
+      <h3 class="font-f1 text-lg font-bold text-white">AÚN NO HAY VUELTAS EN PARRILLA</h3>
+      <p class="text-sm text-slate-400">Inscribe pilotos y registra vueltas, o carga datos de ejemplo para ver el tablero completo.</p>
+      <button id="btnDemoEmpty" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-racing-red to-rose-700 text-white font-bold text-sm shadow-neon-red active:scale-95 transition-all">Cargar datos de ejemplo</button>
     </section>
+
+    <div id="dashboardBody" class="space-y-8">
+
+    <!-- PODIUM & HIGHLIGHT CARDS -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      
+      <!-- CARD 1: FASTEST LAP (PURPLE SECTOR) -->
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-purple-950/30 via-racing-panel to-slate-950 border border-purple-500/40 p-5 shadow-neon-purple group hover:border-purple-400 transition-all">
+        <div class="flex justify-between items-start">
+          <span class="text-[10px] font-f1 tracking-wider uppercase px-2.5 py-1 bg-purple-900/40 text-purple-300 border border-purple-500/40 rounded-lg">
+            🟣 POLE POSITION / RÉCORD
+          </span>
+          <span class="text-2xl">⚡</span>
+        </div>
+        <div class="mt-4">
+          <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">Vuelta Más Rápida</div>
+          <div id="poleDriver" class="text-2xl font-black font-f1 text-white tracking-wide mt-1 truncate">--</div>
+        </div>
+        <div class="mt-4 flex items-baseline gap-2">
+          <div id="poleTime" class="text-4xl font-black font-f1 text-purple-400 glow-f1-purple">00.000</div>
+          <span class="text-xs text-slate-400 font-mono">SEG</span>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <span id="poleLapNumber">Vuelta #--</span>
+          <span id="poleDeltaLeader" class="text-purple-300 font-mono">SECTOR PÚRPURA</span>
+        </div>
+      </div>
+
+      <!-- CARD 2: RACE PACE (BEST AVERAGE) -->
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-cyan-950/30 via-racing-panel to-slate-950 border border-racing-cyan/40 p-5 shadow-xl group hover:border-racing-cyan transition-all">
+        <div class="flex justify-between items-start">
+          <span class="text-[10px] font-f1 tracking-wider uppercase px-2.5 py-1 bg-cyan-950/60 text-racing-cyan border border-racing-cyan/40 rounded-lg">
+            🎯 MEJOR RITMO DE CARRERA
+          </span>
+          <span class="text-2xl">⏱️</span>
+        </div>
+        <div class="mt-4">
+          <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">Promedio de Vueltas Limpias</div>
+          <div id="paceDriver" class="text-2xl font-black font-f1 text-white tracking-wide mt-1 truncate">--</div>
+        </div>
+        <div class="mt-4 flex items-baseline gap-2">
+          <div id="paceTime" class="text-4xl font-black font-f1 text-racing-cyan">00.000</div>
+          <span class="text-xs text-slate-400 font-mono">SEG AVG</span>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <span>Reloj suizo / Sin trompos</span>
+          <span id="paceLapCount" class="font-mono">-- vueltas</span>
+        </div>
+      </div>
+
+      <!-- CARD 3: GAP TO POLE (MAX VARIANCE) -->
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-amber-950/20 via-racing-panel to-slate-950 border border-amber-500/40 p-5 shadow-xl group hover:border-amber-400 transition-all">
+        <div class="flex justify-between items-start">
+          <span class="text-[10px] font-f1 tracking-wider uppercase px-2.5 py-1 bg-amber-950/60 text-racing-yellow border border-amber-500/40 rounded-lg">
+            📊 COMPETITIVIDAD TOTAL
+          </span>
+          <span class="text-2xl">🚦</span>
+        </div>
+        <div class="mt-4">
+          <div class="text-xs text-slate-400 uppercase tracking-widest font-mono">Diferencia Pole vs Último</div>
+          <div id="gapDifference" class="text-2xl font-black font-f1 text-racing-yellow tracking-wide mt-1">+0.000s</div>
+        </div>
+        <div class="mt-4 flex items-baseline gap-2">
+          <div id="totalPilotsInGrid" class="text-4xl font-black font-f1 text-white">0</div>
+          <span class="text-xs text-slate-400 font-mono">PILOTOS EN GRILLA</span>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <span id="slowestDriverGap">Cierre de grilla: --</span>
+          <span class="font-mono text-amber-300">GAP</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- LIVE TIMING LEADERBOARD -->
+    <section class="bg-racing-panel border border-slate-800 rounded-2xl p-5 md:p-6 shadow-xl space-y-5">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h3 class="font-f1 text-lg font-bold text-white tracking-wide flex items-center gap-2">
+            <svg class="w-5 h-5 text-racing-red" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 8h3a1 1 0 110 2h-4a1 1 0 01-1-1V5a1 1 0 112 0v5z"/></svg>
+            TABLERO OFICIAL DE TIEMPOS (LIVE TIMING)
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">Telemetría de vuelta rápida, promedio de tanda y deltas con respecto a la pole.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Daily vs Historic -->
+          <div class="inline-flex p-1 bg-slate-900 rounded-xl border border-slate-800 text-xs font-semibold">
+            <button id="scopeDaily" class="px-3 py-1.5 rounded-lg bg-racing-red text-white shadow transition-all">Tanda del Día</button>
+            <button id="scopeHistoric" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all">Histórico Pista</button>
+          </div>
+
+          <!-- Sorting Mode -->
+          <div class="inline-flex p-1 bg-slate-900 rounded-xl border border-slate-800 text-xs font-semibold flex-wrap">
+            <button data-sort="best" class="px-3 py-1.5 rounded-lg bg-slate-800 text-purple-400 border border-purple-500/40 font-bold transition-all">🟣 Mejor Vuelta</button>
+            <button data-sort="avg" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all">🎯 Promedio</button>
+            <button data-sort="clean" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all">🧼 Limpio (≤107%)</button>
+            <button data-sort="consistency" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all">🤖 Regularidad</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Timing Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800/80">
+        <table class="w-full text-left text-sm text-slate-300">
+          <thead class="bg-slate-900/90 text-xs font-f1 uppercase tracking-wider text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="px-4 py-3.5 text-center w-14">Pos</th>
+              <th class="px-4 py-3.5">Piloto</th>
+              <th class="px-4 py-3.5 text-right font-bold text-slate-200">Mejor Vuelta</th>
+              <th class="px-4 py-3.5 text-center">Nº Vuelta</th>
+              <th class="px-4 py-3.5 text-right">Promedio Tanda</th>
+              <th class="px-4 py-3.5 text-right">Promedio Limpio</th>
+              <th class="px-4 py-3.5 text-right">± Desv.</th>
+              <th class="px-4 py-3.5 text-right">Delta (Gap Pole)</th>
+              <th class="px-4 py-3.5 text-right">Intervalo</th>
+              <th class="px-4 py-3.5 text-center">Vueltas Giradas</th>
+              <th class="px-4 py-3.5 text-center">Ritmo</th>
+            </tr>
+          </thead>
+          <tbody id="timingTableBody" class="divide-y divide-slate-800 bg-slate-950/40 font-mono">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+      <div id="tableEmptyState" class="hidden text-center py-10 text-slate-500 font-mono text-sm">
+        No se registran tiempos de karting con estos filtros.
+      </div>
+    </section>
+
+    <!-- TOXIC AWARDS & MOTORSPORT HUMOR -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-f1 text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-racing-yellow via-racing-red to-purple-400 tracking-wide flex items-center gap-2">
+            🏆 GALA DE TROFEOS TÓXICOS & HUMILLACIÓN EN PISTA
+          </h3>
+          <p class="text-xs text-slate-400">Récords absurdos, aspirantes a Verstappen y los que deberían andar en triciclo.</p>
+        </div>
+        <span class="text-[11px] font-mono px-2.5 py-1 rounded bg-red-950/80 text-rose-300 border border-rose-800/50">SIN PENA NI GLORIA</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- 1. ASPIRANTE DE F1 / VERSTAPPEN DE BARRIO -->
+        <div class="bg-gradient-to-br from-purple-950/30 via-racing-panel to-slate-950 border border-purple-500/40 p-4 rounded-2xl relative shadow-neon-purple group hover:border-purple-400 transition-all">
+          <div class="flex items-start justify-between">
+            <span class="text-3xl">🏎️</span>
+            <span class="text-[10px] font-mono bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/40">EGO AL VOLANTE</span>
+          </div>
+          <div class="mt-3">
+            <h4 class="text-sm font-f1 font-bold text-purple-300 tracking-wide">EL VERSTAPPEN DE BARRIO</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">La vuelta más veloz histórica. Ya se cree listo para el asiento de Red Bull.</p>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+            <div>
+              <div id="trophyVerstappenPlayer" class="text-base font-bold font-f1 text-white">--</div>
+              <div id="trophyVerstappenLap" class="text-[10px] text-slate-400 font-mono">Vuelta: --</div>
+            </div>
+            <div class="text-right">
+              <span id="trophyVerstappenTime" class="text-2xl font-black font-f1 text-purple-400 glow-f1-purple">00.000</span>
+              <span class="text-[10px] text-slate-500 font-mono block">RÉCORD PISTA</span>
+            </div>
+          </div>
+          <div class="text-[10px] text-purple-300/80 mt-2 font-mono italic text-center">"Frenó con la mente y aceleró con el corazón (o le tocó el kart sin límite)."</div>
+        </div>
+
+        <!-- 2. LLEVANDO A LA ABUELITA AL TEMPLO -->
+        <div class="bg-gradient-to-br from-slate-900 via-racing-panel to-slate-950 border border-slate-800 p-4 rounded-2xl relative group hover:border-slate-600 transition-all">
+          <div class="flex items-start justify-between">
+            <span class="text-3xl">👵</span>
+            <span class="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">PASEO DOMINICAL</span>
+          </div>
+          <div class="mt-3">
+            <h4 class="text-sm font-f1 font-bold text-white tracking-wide">LLEVANDO A LA ABUELITA</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">La vuelta individual más exasperantemente lenta de todo el circuito.</p>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+            <div>
+              <div id="trophyAbuelitaPlayer" class="text-base font-bold font-f1 text-slate-200">--</div>
+              <div id="trophyAbuelitaLap" class="text-[10px] text-slate-400 font-mono">Vuelta: --</div>
+            </div>
+            <div class="text-right">
+              <span id="trophyAbuelitaTime" class="text-2xl font-black font-f1 text-rose-400">00.000</span>
+              <span class="text-[10px] text-slate-500 font-mono block">TIEMPO GLACIAL</span>
+            </div>
+          </div>
+          <div class="text-[10px] text-rose-400/80 mt-2 font-mono italic text-center">"Iba poniendo las luces de estacionamiento y buscando señal de radio."</div>
+        </div>
+
+        <!-- 3. CONDUCTOR DE COCHE DE BEBÉ -->
+        <div class="bg-gradient-to-br from-slate-900 via-racing-panel to-slate-950 border border-slate-800 p-4 rounded-2xl relative group hover:border-slate-600 transition-all">
+          <div class="flex items-start justify-between">
+            <span class="text-3xl">🍼</span>
+            <span class="text-[10px] font-mono bg-yellow-950/60 text-yellow-300 px-2 py-0.5 rounded border border-yellow-800/50">PEDALES DE PLÁSTICO</span>
+          </div>
+          <div class="mt-3">
+            <h4 class="text-sm font-f1 font-bold text-white tracking-wide">CONDUCTOR DE COCHE DE BEBÉ</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">El peor promedio global de vuelta. Peligro andante para el resto de la pista.</p>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+            <div>
+              <div id="trophyBebePlayer" class="text-base font-bold font-f1 text-slate-200">--</div>
+              <div id="trophyBebeCount" class="text-[10px] text-slate-400 font-mono">-- vueltas</div>
+            </div>
+            <div class="text-right">
+              <span id="trophyBebeAvg" class="text-2xl font-black font-f1 text-yellow-400">00.000</span>
+              <span class="text-[10px] text-slate-500 font-mono block">PROMEDIO TORTUGA</span>
+            </div>
+          </div>
+          <div class="text-[10px] text-yellow-400/80 mt-2 font-mono italic text-center">"Los comisarios de pista sacaron bandera azul solo para él."</div>
+        </div>
+
+        <!-- 4. CHICANE MÓVIL CON PATAS (EL TROMPEADOR) -->
+        <div class="bg-gradient-to-br from-slate-900 via-racing-panel to-slate-950 border border-slate-800 p-4 rounded-2xl relative group hover:border-slate-600 transition-all">
+          <div class="flex items-start justify-between">
+            <span class="text-3xl">🐢</span>
+            <span class="text-[10px] font-mono bg-red-950/60 text-red-300 px-2 py-0.5 rounded border border-red-800/50">TROMPOS SERIALES</span>
+          </div>
+          <div class="mt-3">
+            <h4 class="text-sm font-f1 font-bold text-white tracking-wide">CHICANE MÓVIL CON PATAS</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">Mayor brecha entre su mejor vuelta y su peor desastre (inconsistencia pura).</p>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+            <div>
+              <div id="trophyChicanePlayer" class="text-base font-bold font-f1 text-slate-200">--</div>
+              <div id="trophyChicaneDetail" class="text-[10px] text-slate-400 font-mono">Rápida vs Lenta</div>
+            </div>
+            <div class="text-right">
+              <span id="trophyChicaneDelta" class="text-2xl font-black font-f1 text-racing-red">+0.000</span>
+              <span class="text-[10px] text-slate-500 font-mono block">DELTA DE TROMPO</span>
+            </div>
+          </div>
+          <div class="text-[10px] text-red-400/80 mt-2 font-mono italic text-center">"En una vuelta parecía Senna, en la siguiente chocó los neumáticos de contención."</div>
+        </div>
+
+        <!-- 5. EL METRÓNOMO CONSISTENTE -->
+        <div class="bg-gradient-to-br from-cyan-950/20 via-racing-panel to-slate-950 border border-racing-cyan/40 p-4 rounded-2xl relative shadow-xl group hover:border-racing-cyan transition-all">
+          <div class="flex items-start justify-between">
+            <span class="text-3xl">🤖</span>
+            <span class="text-[10px] font-mono bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500/40">PILOTO AUTOMÁTICO</span>
+          </div>
+          <div class="mt-3">
+            <h4 class="text-sm font-f1 font-bold text-racing-cyan tracking-wide">EL METRÓNOMO ROBÓTICO</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">Mínima desviación entre vueltas. Calca sus tiempos vuelta tras vuelta.</p>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+            <div>
+              <div id="trophyMetronomoPlayer" class="text-base font-bold font-f1 text-white">--</div>
+              <div id="trophyMetronomoDetail" class="text-[10px] text-slate-400 font-mono">Desviación estándar</div>
+            </div>
+            <div class="text-right">
+              <span id="trophyMetronomoDiff" class="text-2xl font-black font-f1 text-racing-cyan">±0.000s</span>
+              <span class="text-[10px] text-slate-500 font-mono block">DISPERSIÓN</span>
+            </div>
+          </div>
+          <div class="text-[10px] text-cyan-300/80 mt-2 font-mono italic text-center">"Parece clonado por Inteligencia Artificial en cada sector."</div>
+        </div>
+
+        <!-- 6. TOP 3 GASTADORES DE NAFTA -->
+        <div class="bg-gradient-to-br from-slate-900 via-racing-panel to-slate-950 border border-slate-800 p-4 rounded-2xl relative group hover:border-slate-600 transition-all">
+          <div class="flex items-start justify-between">
+            <span class="text-3xl">⛽</span>
+            <span class="text-[10px] font-mono bg-emerald-950/60 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800/50">TOP VUELTAS GIRADAS</span>
+          </div>
+          <div class="mt-3">
+            <h4 class="text-sm font-f1 font-bold text-white tracking-wide">GASTADORES DE NAFTA</h4>
+            <p class="text-[11px] text-slate-400 mt-0.5">Top 3 pilotos que más vueltas le metieron al asfalto.</p>
+          </div>
+          <div class="mt-3 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5" id="trophyGasList">
+            <!-- Populated by JS -->
+          </div>
+          <div class="text-[10px] text-emerald-400/80 mt-2 font-mono italic text-center">"Se gastaron el sueldo del mes en tandas de 10 minutos."</div>
+        </div>
+
+      </div>
+
+      <!-- Más trofeos generados con los datos ingresados -->
+      <div id="extraTrophies" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- CAMPEONATO -->
+    <section class="bg-racing-panel border border-slate-800 rounded-2xl p-5 md:p-6 shadow-xl space-y-4">
+      <div>
+        <h3 class="font-f1 text-lg font-bold text-white tracking-wide">👑 CAMPEONATO DEL CIRCUITO</h3>
+        <p class="text-xs text-slate-400">Puntos estilo F1 (25-18-15-12-10-8-6-4-2-1) por cada tanda, según la mejor vuelta de cada piloto. Considera todas las fechas de la pista elegida.</p>
+      </div>
+      <div class="overflow-x-auto rounded-xl border border-slate-800/80">
+        <table class="w-full text-left text-sm text-slate-300">
+          <thead class="bg-slate-900/90 text-xs font-f1 uppercase tracking-wider text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="px-4 py-3 text-center w-14">Pos</th>
+              <th class="px-4 py-3">Piloto</th>
+              <th class="px-4 py-3 text-right">Puntos</th>
+              <th class="px-4 py-3 text-center">Poles</th>
+              <th class="px-4 py-3 text-center">Podios</th>
+              <th class="px-4 py-3 text-center">Tandas</th>
+              <th class="px-4 py-3 text-right">Pts/tanda</th>
+            </tr>
+          </thead>
+          <tbody id="championshipBody" class="divide-y divide-slate-800 bg-slate-950/40 font-mono"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TENDENCIAS Y PROMEDIOS -->
+    <section class="bg-racing-panel border border-slate-800 rounded-2xl p-5 md:p-6 shadow-xl space-y-4">
+      <div>
+        <h3 class="font-f1 text-lg font-bold text-white tracking-wide">📈 TENDENCIAS, PROMEDIOS Y ESTADÍSTICAS</h3>
+        <p class="text-xs text-slate-400">Recreativas, no miden habilidad. Para tendencias confiables registra varias fechas en la misma pista. Los promedios de arriba respetan el filtro de tanda/histórico.</p>
+      </div>
+      <div id="trendGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- TELEMETRY CHART (LAP EVOLUTION) -->
+    <section class="bg-racing-panel border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h4 class="font-f1 text-sm font-bold text-white tracking-wide">GRÁFICA DE TELEMETRÍA (TIEMPOS POR VUELTA)</h4>
+          <p class="text-xs text-slate-400">Evolución de cada giro completado en pista (Más abajo = Más rápido).</p>
+        </div>
+        <div class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-xl border border-slate-800">
+          Eje Y invertido (Pace Pace)
+        </div>
+      </div>
+      <div class="h-72 sm:h-80 w-full">
+        <canvas id="lapTelemetryChart"></canvas>
+      </div>
+      <p id="chartFallback" class="hidden text-xs text-racing-yellow">No se pudo cargar Chart.js (se necesita conexión); el resto del tablero funciona igual.</p>
+    </section>
+
+    <!-- LA CURVA DEL SACO: PROMEDIO POR SESIÓN -->
+    <section class="bg-racing-panel border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+      <div>
+        <h4 class="font-f1 text-sm font-bold text-white tracking-wide">LA CURVA DEL SACO (PROMEDIO POR SESIÓN)</h4>
+        <p id="sessionTrendSummary" class="text-xs text-slate-400">--</p>
+      </div>
+      <div class="h-72 w-full">
+        <canvas id="sessionTrendChart"></canvas>
+      </div>
+      <p id="chartFallback2" class="hidden text-xs text-racing-yellow">No se pudo cargar Chart.js (se necesita conexión); el resto del tablero funciona igual.</p>
+    </section>
+
+    <!-- DRIVER TELEMETRY INSPECTOR -->
+    <section class="bg-racing-panel border border-slate-800 rounded-2xl p-5 md:p-6 shadow-xl space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="font-f1 text-lg font-bold text-white tracking-wide flex items-center gap-2">
+            <svg class="w-5 h-5 text-racing-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            FICHA TELEMÉTRICA INDIVIDUAL POR PILOTO
+          </h3>
+          <p class="text-xs text-slate-400">Auditoría detallada de consistencia, deltas y vueltas completadas.</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label for="selectDriverStats" class="text-xs font-semibold text-slate-400">Piloto:</label>
+          <select id="selectDriverStats" class="bg-slate-900 border border-slate-700 text-racing-cyan font-f1 text-sm rounded-xl px-4 py-2 focus:ring-2 focus:ring-racing-cyan focus:outline-none">
+            <!-- Populated by JS -->
+          </select>
+          <button id="btnDeleteDriver" type="button" class="px-3 py-2 rounded-xl bg-rose-950/60 border border-rose-800/60 text-rose-300 hover:bg-rose-900/60 text-xs font-semibold">Eliminar piloto</button>
+        </div>
+      </div>
+
+      <!-- Driver Stat Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+            <span>MEJOR VUELTA PERSONAL</span>
+            <span class="text-purple-400 font-bold">🟣 PB</span>
+          </div>
+          <div class="mt-2 text-3xl font-black font-f1 text-purple-400" id="driverStatBestLap">00.000</div>
+          <div class="text-[11px] text-slate-500 mt-1 font-mono" id="driverStatBestLapDetail">--</div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+            <span>PROMEDIO DE VUELTA</span>
+            <span class="text-racing-cyan font-bold">🎯 AVG</span>
+          </div>
+          <div class="mt-2 text-3xl font-black font-f1 text-racing-cyan" id="driverStatAvgLap">00.000</div>
+          <div class="text-[11px] text-slate-500 mt-1 font-mono" id="driverStatLapsCount">-- vueltas</div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+            <span>DELTA FRENTE A LA POLE</span>
+            <span class="text-racing-yellow font-bold">⏱️ GAP</span>
+          </div>
+          <div class="mt-2 text-3xl font-black font-f1 text-racing-yellow" id="driverStatGapPole">+0.000s</div>
+          <div class="text-[11px] text-slate-500 mt-1 font-mono" id="driverStatGapComment">Calculando...</div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl">
+          <div class="flex items-center justify-between text-slate-400 text-xs font-mono">
+            <span>PEOR VUELTA REGISTRADA</span>
+            <span class="text-rose-400 font-bold">🐢 SLOW</span>
+          </div>
+          <div class="mt-2 text-3xl font-black font-f1 text-rose-400" id="driverStatWorstLap">00.000</div>
+          <div class="text-[11px] text-slate-500 mt-1 font-mono" id="driverStatWorstLapDetail">--</div>
+        </div>
+
+      </div>
+
+      <div id="driverExtraStats" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+
+      <!-- History of Laps Table -->
+      <div>
+        <h5 class="text-xs font-f1 font-bold uppercase tracking-wider text-slate-400 mb-3">Cronología de Vueltas Registradas</h5>
+        <div class="overflow-x-auto rounded-xl border border-slate-800 max-h-60">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-slate-900 text-slate-400 sticky top-0">
+              <tr>
+                <th class="px-4 py-2.5">Fecha</th>
+                <th class="px-4 py-2.5">Pista</th>
+                <th class="px-4 py-2.5 text-center">Nº Vuelta</th>
+                <th class="px-4 py-2.5 text-right">Tiempo (Segundos)</th>
+                <th class="px-4 py-2.5 text-right">Delta vs PB</th>
+                <th class="px-4 py-2.5 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="driverLapsTableBody" class="divide-y divide-slate-800/80 bg-slate-950/60">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- CARA A CARA -->
+    <section class="bg-racing-panel border border-slate-800 rounded-2xl p-5 md:p-6 shadow-xl space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h3 class="font-f1 text-lg font-bold text-white tracking-wide">⚔️ CARA A CARA</h3>
+          <p class="text-xs text-slate-400">Duelo directo entre dos pilotos en la pista seleccionada.</p>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+          <select id="h2hA" aria-label="Piloto A" class="bg-slate-900 border border-slate-700 text-racing-cyan font-f1 text-sm rounded-xl px-3 py-2 focus:ring-2 focus:ring-racing-cyan focus:outline-none"></select>
+          <span>vs</span>
+          <select id="h2hB" aria-label="Piloto B" class="bg-slate-900 border border-slate-700 text-racing-red font-f1 text-sm rounded-xl px-3 py-2 focus:ring-2 focus:ring-racing-red focus:outline-none"></select>
+        </div>
+      </div>
+      <div id="h2hResult" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+    </section>
+
+    </div><!-- /dashboardBody -->
+
   </main>
 
-  <footer>Karting Dashboard · MIT · Las estadísticas son recreativas, no medidas oficiales de rendimiento.</footer>
+  <!-- MODAL: REGISTRAR VUELTA -->
+  <div id="modalLap" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-racing-panel border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+      <button id="btnCloseLapModal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
 
-  <dialog id="lapDialog">
-    <form method="dialog" id="lapForm" novalidate>
-      <h2>Registrar vuelta</h2>
-      <label>Piloto <select id="lapDriver" required></select></label>
-      <label>Pista <select id="lapTrack" required></select></label>
-      <label>Fecha <input id="lapDate" type="date" required min="2000-01-01" max="2100-12-31"></label>
-      <label>Nº de vuelta <input id="lapNumber" type="number" min="1" max="999" step="1" required></label>
-      <label>Tiempo <input id="lapTime" type="text" inputmode="decimal" placeholder="43.520 o 1:02.150" autocomplete="off" required></label>
-      <p class="hint">Entre 10 s y 10 min. Acepta 43.520, 43,520 o 1:02.150.</p>
-      <p id="lapError" class="error" role="alert" hidden></p>
-      <div class="dialog-actions">
-        <button type="button" class="btn" data-close>Cancelar</button>
-        <button type="submit" class="btn primary">Guardar</button>
+      <div class="flex items-center gap-3 mb-5">
+        <div class="p-2.5 bg-racing-red/20 border border-racing-red/40 rounded-xl">
+          <span class="text-xl">⏱️</span>
+        </div>
+        <div>
+          <h3 class="font-f1 text-lg font-bold text-white">REGISTRAR NUEVA VUELTA</h3>
+          <p class="text-xs text-slate-400">Anota el tiempo marcado por el transponder o cronómetro.</p>
+        </div>
       </div>
-    </form>
-  </dialog>
 
-  <dialog id="driverDialog">
-    <form method="dialog" id="driverForm" novalidate>
-      <h2>Nuevo piloto</h2>
-      <label>Nombre o apodo <input id="driverName" type="text" maxlength="40" autocomplete="off" required></label>
-      <p id="driverError" class="error" role="alert" hidden></p>
-      <div class="dialog-actions">
-        <button type="button" class="btn" data-close>Cancelar</button>
-        <button type="submit" class="btn primary">Agregar</button>
-      </div>
-    </form>
-  </dialog>
+      <form id="formLap" class="space-y-4 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Piloto</label>
+          <select id="lapDriverSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:ring-2 focus:ring-racing-red focus:outline-none">
+            <!-- Populated by JS -->
+          </select>
+        </div>
 
-  <dialog id="trackDialog">
-    <form method="dialog" id="trackForm" novalidate>
-      <h2>Nueva pista</h2>
-      <label>Nombre o lugar <input id="trackName" type="text" maxlength="40" autocomplete="off" required></label>
-      <p id="trackError" class="error" role="alert" hidden></p>
-      <div class="dialog-actions">
-        <button type="button" class="btn" data-close>Cancelar</button>
-        <button type="submit" class="btn primary">Agregar</button>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Pista</label>
+          <select id="lapTrackSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:ring-2 focus:ring-racing-red focus:outline-none"></select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nº de Vuelta</label>
+            <input type="number" id="lapNumberInput" min="1" max="999" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:ring-2 focus:ring-racing-red focus:outline-none" required>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha Tanda</label>
+            <input type="date" id="lapDateInput" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:ring-2 focus:ring-racing-red focus:outline-none" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tiempo de Vuelta (Ej: 43.520 o 1:02.310)</label>
+          <div class="relative">
+            <input type="text" id="lapTimeInput" placeholder="43.520 o 0:43.520" class="w-full bg-slate-950 border-2 border-racing-red/60 rounded-xl px-4 py-3 text-2xl font-black font-f1 text-racing-yellow tracking-wider focus:ring-2 focus:ring-racing-red focus:outline-none" required>
+            <span class="absolute right-3 top-3.5 text-xs font-mono text-slate-500">SS.sss</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">Acepta 43.520, 43,520 o 1:02.150 (entre 10 s y 10 min).</p>
+        </div>
+
+        <p id="lapError" role="alert" class="hidden text-xs text-rose-400"></p>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-racing-red to-rose-700 hover:from-rose-600 hover:to-racing-red text-white font-bold font-f1 tracking-wide rounded-xl shadow-neon-red transition-all">
+            GUARDAR CRONO EN TELEMETRÍA
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AGREGAR NUEVO PILOTO -->
+  <div id="modalDriver" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-racing-panel border border-slate-700 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
+      <button id="btnCloseDriverModal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="p-2.5 bg-racing-cyan/20 border border-racing-cyan/40 rounded-xl">
+          <span class="text-xl">🏁</span>
+        </div>
+        <div>
+          <h3 class="font-f1 text-lg font-bold text-white">NUEVO PILOTO EN GRILLA</h3>
+          <p class="text-xs text-slate-400">Inscribe a un nuevo amigo para la carrera.</p>
+        </div>
       </div>
-    </form>
-  </dialog>
-  <!-- Chart.js 4.5.1 (MIT) con SRI; si no carga, el resto del tablero funciona igual -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+
+      <form id="formDriver" class="space-y-4 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Completo o Apodo</label>
+          <input type="text" id="newDriverNameInput" placeholder="Ej: Matias Silva" maxlength="40" autocomplete="off" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:ring-2 focus:ring-racing-cyan focus:outline-none" required>
+        </div>
+
+        <p id="driverError" role="alert" class="hidden text-xs text-rose-400"></p>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold font-f1 tracking-wide rounded-xl shadow-xl transition-all">
+            INSCRIBIR PILOTO
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AGREGAR PISTA -->
+  <div id="modalTrack" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-racing-panel border border-slate-700 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
+      <button id="btnCloseTrackModal" type="button" aria-label="Cerrar" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="p-2.5 bg-racing-yellow/20 border border-racing-yellow/40 rounded-xl"><span class="text-xl">🛣️</span></div>
+        <div>
+          <h3 class="font-f1 text-lg font-bold text-white">NUEVA PISTA</h3>
+          <p class="text-xs text-slate-400">Cada circuito se compara por separado.</p>
+        </div>
+      </div>
+      <form id="formTrack" class="space-y-4 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre o lugar</label>
+          <input type="text" id="newTrackNameInput" maxlength="40" autocomplete="off" placeholder="Ej: Kartódromo Norte" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:ring-2 focus:ring-racing-yellow focus:outline-none" required>
+        </div>
+        <p id="trackError" role="alert" class="hidden text-xs text-rose-400"></p>
+        <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold font-f1 tracking-wide rounded-xl shadow-xl transition-all">AGREGAR PISTA</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 border border-racing-cyan text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 font-mono">
+    <span class="text-racing-cyan text-lg">⚡</span>
+    <span id="toastMsg">Telemetría actualizada</span>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
   <script>
-/* Estadísticas puras (sin DOM) del Karting Dashboard.
- * Vuelta: { id, date: "AAAA-MM-DD", driver, lap, seconds, track } */
-(function (root, factory) {
-  if (typeof module === "object" && module.exports) module.exports = factory();
-  else root.KartStats = factory();
-})(typeof self !== "undefined" ? self : this, function () {
-  "use strict";
+  (function () {
+    "use strict";
 
-  const CLEAN_RATIO = 1.07; // regla del 107%: vuelta "limpia" respecto a su mejor vuelta
-  const SPIN_RATIO = 1.10; // más de 110% de su mejor vuelta = trompo / desastre
+    const KEY = "karting_dashboard_v2";
+    const LEGACY_LAPS = "apex_karting_laps_v1";
+    const LEGACY_DRIVERS = "apex_karting_drivers_v1";
+    const DEFAULT_TRACK = "Circuito GP Indoor";
+    const ALL = "__all__";
+    const LIM = { drivers: 60, tracks: 30, laps: 20000, name: 40, minS: 10, maxS: 600, maxLap: 999, importBytes: 5 * 1024 * 1024 };
+    const POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+    const CLEAN = 1.07, SPIN = 1.10;
+    const $ = (id) => document.getElementById(id);
 
-  const sum = (a) => a.reduce((s, x) => s + x, 0);
-  const mean = (a) => (a.length ? sum(a) / a.length : NaN);
-
-  function median(a) {
-    if (!a.length) return NaN;
-    const s = [...a].sort((x, y) => x - y);
-    const m = Math.floor(s.length / 2);
-    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
-  }
-
-  // Desviación estándar muestral (n-1); NaN con menos de 2 datos.
-  function stdDev(a) {
-    if (a.length < 2) return NaN;
-    const m = mean(a);
-    return Math.sqrt(sum(a.map((x) => (x - m) ** 2)) / (a.length - 1));
-  }
-
-  // Pendiente de mínimos cuadrados (unidades por índice). Negativa = va más rápido.
-  function slope(values) {
-    const n = values.length;
-    if (n < 2) return NaN;
-    const mx = (n - 1) / 2;
-    const my = mean(values);
-    let num = 0;
-    let den = 0;
-    values.forEach((y, i) => {
-      num += (i - mx) * (y - my);
-      den += (i - mx) ** 2;
-    });
-    return num / den;
-  }
-
-  function groupBy(items, keyFn) {
-    const map = new Map();
-    items.forEach((it) => {
-      const k = keyFn(it);
-      if (!map.has(k)) map.set(k, []);
-      map.get(k).push(it);
-    });
-    return map;
-  }
-
-  const byDateLap = (a, b) => a.date.localeCompare(b.date) || a.lap - b.lap;
-
-  function summarize(laps) {
-    if (!laps.length) return null;
-    const secs = laps.map((l) => l.seconds);
-    const bestLap = laps.reduce((b, l) => (l.seconds < b.seconds ? l : b));
-    const worstLap = laps.reduce((b, l) => (l.seconds > b.seconds ? l : b));
-    const clean = secs.filter((s) => s <= bestLap.seconds * CLEAN_RATIO);
-    const avg = mean(secs);
-    const sd = stdDev(secs);
-    return {
-      count: laps.length,
-      best: bestLap.seconds,
-      bestLap,
-      worst: worstLap.seconds,
-      worstLap,
-      avg,
-      median: median(secs),
-      stdDev: sd,
-      cv: Number.isNaN(sd) ? NaN : (sd / avg) * 100,
-      cleanAvg: mean(clean),
-      cleanCount: clean.length,
-      spins: secs.filter((s) => s > bestLap.seconds * SPIN_RATIO).length,
-      spread: worstLap.seconds - bestLap.seconds,
-    };
-  }
-
-  // Parrilla ordenada. sortBy: "best" | "avg" | "clean" | "consistency"
-  function standings(laps, sortBy) {
-    const rows = [];
-    groupBy(laps, (l) => l.driver).forEach((dl, driver) => {
-      rows.push({ driver, ...summarize(dl) });
-    });
-    const key = {
-      best: (r) => r.best,
-      avg: (r) => r.avg,
-      clean: (r) => r.cleanAvg,
-      consistency: (r) => (Number.isNaN(r.stdDev) ? Infinity : r.stdDev),
-    }[sortBy] || ((r) => r.best);
-    rows.sort((a, b) => key(a) - key(b) || a.best - b.best || a.driver.localeCompare(b.driver));
-    rows.forEach((r, i) => {
-      r.pos = i + 1;
-      r.gapPole = r.best - rows[0].best;
-      r.interval = i === 0 ? 0 : r.best - rows[i - 1].best;
-    });
-    return rows;
-  }
-
-  // Mejor y promedio por sesión (fecha) de un piloto, en orden cronológico.
-  function sessionsOf(driverLaps) {
-    const out = [];
-    groupBy(driverLaps, (l) => l.date).forEach((dl, date) => {
-      const sorted = [...dl].sort((a, b) => a.lap - b.lap);
-      const secs = sorted.map((l) => l.seconds);
-      out.push({
-        date,
-        laps: sorted,
-        count: sorted.length,
-        best: Math.min(...secs),
-        avg: mean(secs),
-        first: sorted[0].seconds,
-        slope: slope(secs),
-      });
-    });
-    return out.sort((a, b) => a.date.localeCompare(b.date));
-  }
-
-  function longestImprovingStreak(driverLaps) {
-    let best = 0;
-    let cur = 0;
-    let prev = null;
-    [...driverLaps].sort(byDateLap).forEach((l) => {
-      if (prev && prev.date === l.date && l.seconds < prev.seconds) cur += 1;
-      else cur = 0;
-      best = Math.max(best, cur);
-      prev = l;
-    });
-    return best; // número de mejoras seguidas (vueltas consecutivas más rápidas)
-  }
-
-  // Mide cuánto cambia de vuelta a vuelta: promedio de |Δ| entre vueltas consecutivas de una sesión.
-  function lapToLapJitter(driverLaps) {
-    const deltas = [];
-    sessionsOf(driverLaps).forEach((s) => {
-      for (let i = 1; i < s.laps.length; i += 1) {
-        deltas.push(Math.abs(s.laps[i].seconds - s.laps[i - 1].seconds));
-      }
-    });
-    return deltas.length ? mean(deltas) : NaN;
-  }
-
-  // Estadísticas por piloto para premios y tendencias.
-  function driverInsights(laps) {
-    const out = [];
-    groupBy(laps, (l) => l.driver).forEach((dl, driver) => {
-      const sessions = sessionsOf(dl);
-      const s = summarize(dl);
-      const multi = sessions.filter((x) => x.count >= 2);
-      // Calentamiento: cuánto más lenta fue la 1ª vuelta que la mejor de esa sesión.
-      const warmUps = multi.map((x) => x.first - x.best);
-      // Tendencia dentro de la tanda (s/vuelta); solo sesiones con 4+ vueltas.
-      const slopes = sessions.filter((x) => x.count >= 4).map((x) => x.slope);
-      // Progreso entre sesiones: mejor de la última vs mejor de la anterior.
-      let sessionDelta = NaN;
-      let bestEverDelta = NaN;
-      if (sessions.length >= 2) {
-        const last = sessions[sessions.length - 1];
-        const prev = sessions[sessions.length - 2];
-        sessionDelta = last.best - prev.best;
-        const before = Math.min(...sessions.slice(0, -1).map((x) => x.best));
-        bestEverDelta = last.best - before;
-      }
-      out.push({
-        driver,
-        summary: s,
-        sessions,
-        sessionCount: sessions.length,
-        warmUp: warmUps.length ? mean(warmUps) : NaN,
-        withinSessionSlope: slopes.length ? mean(slopes) : NaN,
-        sessionDelta,
-        bestEverDelta,
-        streak: longestImprovingStreak(dl),
-        jitter: lapToLapJitter(dl),
-      });
-    });
-    return out;
-  }
-
-  // Enfrentamiento directo entre dos pilotos.
-  function headToHead(laps, a, b) {
-    const la = laps.filter((l) => l.driver === a);
-    const lb = laps.filter((l) => l.driver === b);
-    if (!la.length || !lb.length) return null;
-    const sa = summarize(la);
-    const sb = summarize(lb);
-    let aWins = 0;
-    let bWins = 0;
-    let ties = 0;
-    const mapB = new Map(lb.map((l) => [`${l.date}|${l.track}|${l.lap}`, l.seconds]));
-    la.forEach((l) => {
-      const other = mapB.get(`${l.date}|${l.track}|${l.lap}`);
-      if (other === undefined) return;
-      if (l.seconds < other) aWins += 1;
-      else if (l.seconds > other) bWins += 1;
-      else ties += 1;
-    });
-    return {
-      a: sa,
-      b: sb,
-      bestGap: sa.best - sb.best,
-      avgGap: sa.avg - sb.avg,
-      aWins,
-      bWins,
-      ties,
-      pairs: aWins + bWins + ties,
-    };
-  }
-
-  // Premios para reírse (cada uno devuelve null si no hay datos suficientes).
-  function trophies(laps) {
-    if (!laps.length) return [];
-    const ins = driverInsights(laps);
-    const rows = standings(laps, "best");
-    const fastest = laps.reduce((b, l) => (l.seconds < b.seconds ? l : b));
-    const slowest = laps.reduce((b, l) => (l.seconds > b.seconds ? l : b));
-    const pick = (arr, fn, dir) => {
-      const c = arr.filter((x) => Number.isFinite(fn(x)));
-      if (!c.length) return null;
-      return c.reduce((b, x) => (dir === "max" ? (fn(x) > fn(b) ? x : b) : (fn(x) < fn(b) ? x : b)));
-    };
-    const list = [];
-    const add = (id, item, driver, value, detail) => {
-      if (item) list.push({ id, driver, value, detail });
-    };
-
-    add("verstappen", fastest, fastest.driver, fastest.seconds, `${fastest.date} · vuelta ${fastest.lap}`);
-    add("abuelita", slowest, slowest.driver, slowest.seconds, `${slowest.date} · vuelta ${slowest.lap}`);
-
-    const babyCar = pick(ins, (x) => x.summary.avg, "max");
-    add("bebe", babyCar, babyCar && babyCar.driver, babyCar && babyCar.summary.avg, babyCar && `${babyCar.summary.count} vueltas`);
-
-    const chicane = pick(ins.filter((x) => x.summary.count >= 2), (x) => x.summary.spread, "max");
-    add("chicane", chicane, chicane && chicane.driver, chicane && chicane.summary.spread,
-      chicane && `${chicane.summary.best.toFixed(3)} vs ${chicane.summary.worst.toFixed(3)}`);
-
-    const metronome = pick(ins, (x) => x.summary.stdDev, "min");
-    add("metronomo", metronome, metronome && metronome.driver, metronome && metronome.summary.stdDev,
-      metronome && `${metronome.summary.count} vueltas`);
-
-    const spinner = pick(ins.filter((x) => x.summary.spins > 0), (x) => x.summary.spins, "max");
-    add("trompo", spinner, spinner && spinner.driver, spinner && spinner.summary.spins, "vueltas a más de 110% de su mejor");
-
-    const lateBloomer = pick(ins, (x) => x.warmUp, "max");
-    add("calentando", lateBloomer && lateBloomer.warmUp > 0 ? lateBloomer : null, lateBloomer && lateBloomer.driver,
-      lateBloomer && lateBloomer.warmUp, "su 1ª vuelta vs su mejor de la tanda (promedio)");
-
-    const streaker = pick(ins.filter((x) => x.streak > 0), (x) => x.streak, "max");
-    add("racha", streaker, streaker && streaker.driver, streaker && streaker.streak, "vueltas seguidas más rápidas que la anterior");
-
-    const jittery = pick(ins, (x) => x.jitter, "max");
-    add("montana", jittery, jittery && jittery.driver, jittery && jittery.jitter, "cambio medio entre vueltas consecutivas");
-
-    const fader = pick(ins, (x) => x.withinSessionSlope, "max");
-    add("dormido", fader && fader.withinSessionSlope > 0 ? fader : null, fader && fader.driver,
-      fader && fader.withinSessionSlope, "segundos que pierde por vuelta dentro de la tanda");
-
-    const climber = pick(ins, (x) => x.sessionDelta, "min");
-    add("remontador", climber && climber.sessionDelta < 0 ? climber : null, climber && climber.driver,
-      climber && climber.sessionDelta, "mejora de su mejor vuelta vs la sesión anterior");
-
-    const closest = rows.length > 1 ? rows.slice(1).reduce((b, r) => (r.interval < b.interval ? r : b)) : null;
-    add("casi", closest, closest && closest.driver, closest && closest.interval, "diferencia con el piloto de delante");
-
-    const blueFlag = rows.length > 1 ? rows[rows.length - 1] : null;
-    add("bandera_azul", blueFlag, blueFlag && blueFlag.driver, blueFlag && blueFlag.gapPole, "distancia a la pole");
-
-    const gas = pick(ins, (x) => x.summary.count, "max");
-    add("nafta", gas, gas && gas.driver, gas && gas.summary.count, "vueltas giradas");
-
-    const loyal = pick(ins, (x) => x.sessionCount, "max");
-    add("fiel", loyal, loyal && loyal.driver, loyal && loyal.sessionCount, "tandas asistidas");
-
-    return list;
-  }
-
-  // Tabla de gasto de nafta: top N por cantidad de vueltas.
-  function topByLaps(laps, n) {
-    const rows = [];
-    groupBy(laps, (l) => l.driver).forEach((dl, driver) => rows.push({ driver, count: dl.length }));
-    rows.sort((a, b) => b.count - a.count || a.driver.localeCompare(b.driver));
-    return rows.slice(0, n);
-  }
-
-  // Resumen global de grupo.
-  function groupOverview(laps) {
-    if (!laps.length) return null;
-    const secs = laps.map((l) => l.seconds);
-    const dates = new Set(laps.map((l) => l.date));
-    const sorted = [...dates].sort();
-    const dayBest = sorted.map((d) => Math.min(...laps.filter((l) => l.date === d).map((l) => l.seconds)));
-    return {
-      laps: laps.length,
-      drivers: new Set(laps.map((l) => l.driver)).size,
-      sessions: dates.size,
-      totalSeconds: sum(secs),
-      avg: mean(secs),
-      median: median(secs),
-      stdDev: stdDev(secs),
-      best: Math.min(...secs),
-      worst: Math.max(...secs),
-      // Tendencia del récord de la pista por día (negativa = el grupo se vuelve más rápido).
-      dayBestSlope: slope(dayBest),
-      dayBest,
-      dates: sorted,
-    };
-  }
-
-  function formatTime(sec) {
-    if (typeof sec !== "number" || !Number.isFinite(sec) || sec <= 0) return "--.---";
-    if (sec >= 60) {
-      const m = Math.floor(sec / 60);
-      const rest = (sec - m * 60).toFixed(3).padStart(6, "0");
-      return `${m}:${rest}`;
+    // ---------- Utilidades ----------
+    function escapeHtml(v) {
+      return String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     }
-    return sec.toFixed(3);
-  }
-
-  // Acepta "43.520", "43,520" o "1:02.150". Devuelve null si es inválido.
-  function parseTime(input) {
-    if (typeof input !== "string") return null;
-    const str = input.trim().replace(",", ".");
-    let value;
-    if (/^\d{1,2}:\d{1,2}(\.\d{1,3})?$/.test(str)) {
-      const [m, s] = str.split(":");
-      value = Number(m) * 60 + Number(s);
-    } else if (/^\d{1,3}(\.\d{1,3})?$/.test(str)) {
-      value = Number(str);
-    } else {
-      return null;
+    const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+    function median(a) {
+      const s = [...a].sort((x, y) => x - y), m = s.length >> 1;
+      return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
     }
-    return Number.isFinite(value) ? Math.round(value * 1000) / 1000 : null;
-  }
-
-  return {
-    CLEAN_RATIO, SPIN_RATIO,
-    mean, median, stdDev, slope, groupBy,
-    summarize, standings, sessionsOf, driverInsights, headToHead,
-    trophies, topByLaps, groupOverview, formatTime, parseTime,
-    longestImprovingStreak, lapToLapJitter,
-  };
-});
-
-/* Modelo de datos, validación y demo del Karting Dashboard. Sin DOM. */
-(function (root, factory) {
-  if (typeof module === "object" && module.exports) module.exports = factory();
-  else root.KartStore = factory();
-})(typeof self !== "undefined" ? self : this, function () {
-  "use strict";
-
-  const SCHEMA_VERSION = 2;
-  const LIMITS = {
-    maxDrivers: 60,
-    maxTracks: 30,
-    maxLaps: 20000,
-    maxNameLength: 40,
-    minSeconds: 10,
-    maxSeconds: 600,
-    maxLapNumber: 999,
-    maxImportBytes: 5 * 1024 * 1024,
-  };
-  const DEFAULT_TRACK = "Circuito GP Indoor";
-
-  // SECURITY: nombres como texto plano; sin caracteres de control ni marcado.
-  function cleanName(value) {
-    if (typeof value !== "string") return null;
-    const name = value.replace(/[\u0000-\u001f\u007f<>]/g, "").replace(/\s+/g, " ").trim();
-    if (!name || name.length > LIMITS.maxNameLength) return null;
-    if (name === "__proto__" || name === "constructor" || name === "prototype") return null;
-    return name;
-  }
-
-  function isValidDate(value) {
-    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-    const d = new Date(`${value}T00:00:00Z`);
-    return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value && value >= "2000-01-01" && value <= "2100-12-31";
-  }
-
-  function isValidSeconds(n) {
-    return typeof n === "number" && Number.isFinite(n) && n >= LIMITS.minSeconds && n <= LIMITS.maxSeconds;
-  }
-
-  function newId(prefix) {
-    const rnd = (typeof crypto !== "undefined" && crypto.getRandomValues)
-      ? Array.from(crypto.getRandomValues(new Uint32Array(2)), (x) => x.toString(36)).join("")
-      : Math.random().toString(36).slice(2);
-    return `${prefix}_${Date.now().toString(36)}${rnd}`;
-  }
-
-  function cleanId(value, fallbackPrefix) {
-    return typeof value === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(value) ? value : newId(fallbackPrefix);
-  }
-
-  // Valida y normaliza una base completa. Lanza Error con mensaje legible si es inválida.
-  function validateDatabase(raw) {
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("El archivo no es una base de datos válida.");
-    if (!Array.isArray(raw.laps) || !Array.isArray(raw.drivers)) throw new Error("Faltan las listas de pilotos o vueltas.");
-    if (raw.drivers.length > LIMITS.maxDrivers) throw new Error(`Máximo ${LIMITS.maxDrivers} pilotos.`);
-    if (raw.laps.length > LIMITS.maxLaps) throw new Error(`Máximo ${LIMITS.maxLaps} vueltas.`);
-
-    const drivers = [];
-    const seen = new Set();
-    raw.drivers.forEach((d) => {
-      const name = cleanName(d);
-      if (name && !seen.has(name.toLowerCase())) {
-        seen.add(name.toLowerCase());
-        drivers.push(name);
+    function stdDev(a) {
+      if (a.length < 2) return 0;
+      const m = mean(a);
+      return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1));
+    }
+    function slope(ys) {
+      const n = ys.length, mx = (n - 1) / 2, my = mean(ys);
+      let num = 0, den = 0;
+      ys.forEach((y, i) => { num += (i - mx) * (y - my); den += (i - mx) ** 2; });
+      return den ? num / den : 0;
+    }
+    function formatLapTime(sec) {
+      if (typeof sec !== "number" || !isFinite(sec) || sec <= 0) return "--.---";
+      if (sec >= 60) {
+        const m = Math.floor(sec / 60), r = (sec % 60).toFixed(3);
+        return m + ":" + (parseFloat(r) < 10 ? "0" + r : r);
       }
-    });
+      return sec.toFixed(3);
+    }
+    const sgn = (n, d = 3) => (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n).toFixed(d) + "s";
+    function localDate() {
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+    function isValidDate(s) {
+      if (typeof s !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+      const d = new Date(s + "T00:00:00Z");
+      return !isNaN(d) && d.toISOString().slice(0, 10) === s && +s.slice(0, 4) >= 2000 && +s.slice(0, 4) <= 2100;
+    }
+    function cleanName(v) {
+      if (typeof v !== "string") return null;
+      const n = v.replace(/[\u0000-\u001f\u007f<>]/g, "").replace(/\s+/g, " ").trim();
+      if (!n || n.length > LIM.name) return null;
+      if (["__proto__", "constructor", "prototype"].includes(n.toLowerCase())) return null;
+      return n;
+    }
+    function parseTime(input) {
+      const t = String(input).trim().replace(",", ".");
+      let s = null, m;
+      if ((m = /^(\d{1,3})(?:\.(\d{1,3}))?$/.exec(t))) s = parseFloat(t);
+      else if ((m = /^(\d{1,2}):([0-5]?\d)(?:\.(\d{1,3}))?$/.exec(t))) s = +m[1] * 60 + parseFloat(m[2] + "." + (m[3] || "0"));
+      return s !== null && isFinite(s) && s >= LIM.minS && s <= LIM.maxS ? s : null;
+    }
+    function newId() {
+      const b = new Uint32Array(3);
+      crypto.getRandomValues(b);
+      return "l_" + Array.from(b, (x) => x.toString(36)).join("");
+    }
+    const lapKey = (l) => [l.driver, l.track, l.date, l.lap].join("|");
 
-    const tracks = [];
-    const seenTracks = new Set();
-    const addTrack = (t) => {
-      const name = cleanName(t);
-      if (name && !seenTracks.has(name.toLowerCase()) && tracks.length < LIMITS.maxTracks) {
-        seenTracks.add(name.toLowerCase());
-        tracks.push(name);
-      }
-      return name;
-    };
-    (Array.isArray(raw.tracks) ? raw.tracks : []).forEach(addTrack);
+    // ---------- Datos y validación ----------
+    function validateDatabase(raw) {
+      if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("El archivo no tiene el formato esperado.");
+      const drivers = new Set(), tracks = new Set([DEFAULT_TRACK]), seen = new Set(), laps = [];
+      (Array.isArray(raw.drivers) ? raw.drivers : []).slice(0, LIM.drivers).forEach((d) => { const n = cleanName(d); if (n) drivers.add(n); });
+      (Array.isArray(raw.tracks) ? raw.tracks : []).slice(0, LIM.tracks).forEach((t) => { const n = cleanName(t); if (n) tracks.add(n); });
+      let discarded = 0;
+      (Array.isArray(raw.laps) ? raw.laps : []).slice(0, LIM.laps).forEach((l) => {
+        if (!l || typeof l !== "object") { discarded++; return; }
+        const driver = cleanName(l.driver), track = cleanName(l.track === undefined ? DEFAULT_TRACK : l.track);
+        const lap = Number(l.lap), seconds = Number(l.seconds);
+        if (!driver || !track || !isValidDate(l.date) || !Number.isInteger(lap) || lap < 1 || lap > LIM.maxLap ||
+            !isFinite(seconds) || seconds < LIM.minS || seconds > LIM.maxS) { discarded++; return; }
+        if (!drivers.has(driver) && drivers.size >= LIM.drivers) { discarded++; return; }
+        if (!tracks.has(track) && tracks.size >= LIM.tracks) { discarded++; return; }
+        const rec = { id: "", date: l.date, driver, lap, seconds: Math.round(seconds * 1000) / 1000, track };
+        const k = lapKey(rec);
+        if (seen.has(k)) { discarded++; return; }
+        seen.add(k);
+        rec.id = typeof l.id === "string" && /^[\w-]{1,40}$/.test(l.id) ? l.id : newId();
+        drivers.add(driver); tracks.add(track); laps.push(rec);
+      });
+      return { drivers: [...drivers], tracks: [...tracks], laps, discarded };
+    }
+    function load() {
+      try {
+        const cur = localStorage.getItem(KEY);
+        if (cur) return validateDatabase(JSON.parse(cur));
+        const l = localStorage.getItem(LEGACY_LAPS), d = localStorage.getItem(LEGACY_DRIVERS);
+        if (l) return validateDatabase({ laps: JSON.parse(l), drivers: d ? JSON.parse(d) : [] });
+      } catch (e) { /* datos corruptos: se parte vacío */ }
+      return { drivers: [], tracks: [DEFAULT_TRACK], laps: [] };
+    }
+    function save() {
+      try { localStorage.setItem(KEY, JSON.stringify({ drivers: db.drivers, tracks: db.tracks, laps: db.laps })); }
+      catch (e) { toast("No se pudo guardar en este navegador."); }
+    }
+    function demoDatabase() {
+      const sessions = [
+        ["2026-10-16", { "Pierre Nodoyuna": [47.9, 45.6, 44.8, 44.5, 44.9], "Tiroloco McGrau": [48.3, 44.9, 43.6, 43.9, 44.2], "Agente Cobra": [50.2, 46.8, 45.7, 45.1], "Porko Rosso": [60.1, 56.0, 54.8, 55.3], "Pedro Picapiedra": [49.4, 44.6, 58.9, 45.0] }],
+        ["2026-10-23", { "Pierre Nodoyuna": [47.2, 44.9, 43.8, 43.5, 43.7], "Tiroloco McGrau": [47.6, 44.2, 42.9, 43.3, 43.5], "Agente Cobra": [49.7, 46.1, 44.8, 44.5, 44.6], "Porko Rosso": [59.0, 55.1, 53.9, 54.2], "Pedro Picapiedra": [48.8, 44.0, 43.9, 57.8, 44.4] }],
+        ["2026-10-30", { "Pierre Nodoyuna": [46.850, 44.320, 43.190, 43.050, 43.210], "Tiroloco McGrau": [47.100, 43.800, 42.150, 42.680, 43.010], "Agente Cobra": [49.300, 45.420, 44.110, 43.900, 44.200], "Porko Rosso": [58.400, 54.120, 52.650, 53.020], "Pedro Picapiedra": [48.200, 43.400, 57.300, 43.850] }],
+      ];
+      const laps = [];
+      sessions.forEach(([date, by]) => Object.entries(by).forEach(([driver, ts]) =>
+        ts.forEach((seconds, i) => laps.push({ date, driver, lap: i + 1, seconds, track: DEFAULT_TRACK }))));
+      return validateDatabase({ drivers: [...new Set(laps.map((l) => l.driver))], tracks: [DEFAULT_TRACK], laps });
+    }
 
-    const laps = [];
-    const ids = new Set();
-    let skipped = 0;
-    raw.laps.forEach((l) => {
-      if (!l || typeof l !== "object") { skipped += 1; return; }
-      const driver = cleanName(l.driver);
-      const track = addTrack(l.track === undefined ? DEFAULT_TRACK : l.track);
-      const lap = Number(l.lap);
-      const seconds = typeof l.seconds === "number" ? Math.round(l.seconds * 1000) / 1000 : NaN;
-      if (!driver || !track || !isValidDate(l.date) || !Number.isInteger(lap) || lap < 1 || lap > LIMITS.maxLapNumber || !isValidSeconds(seconds)) {
-        skipped += 1;
+    let db = load();
+    const ui = { track: ALL, date: "", scope: "daily", sort: "best", driver: "", a: "", b: "" };
+    let chartA = null, chartB = null;
+
+    // ---------- Estadísticas ----------
+    const byDriver = (laps) => { const m = new Map(); laps.forEach((l) => { if (!m.has(l.driver)) m.set(l.driver, []); m.get(l.driver).push(l); }); return m; };
+    const byDate = (laps) => { const m = new Map(); laps.forEach((l) => { if (!m.has(l.date)) m.set(l.date, []); m.get(l.date).push(l); }); return new Map([...m].sort((x, y) => x[0] < y[0] ? -1 : 1)); };
+    function summarize(driver, ls) {
+      const sec = ls.map((l) => l.seconds), best = Math.min(...sec);
+      const bl = ls.find((l) => l.seconds === best);
+      const clean = sec.filter((s) => s <= best * CLEAN);
+      return {
+        driver, n: ls.length, best, bestLap: bl.lap, bestDate: bl.date, avg: mean(sec), median: median(sec),
+        clean: mean(clean), sd: stdDev(clean), cv: mean(sec) ? stdDev(sec) / mean(sec) : 0,
+        spins: sec.filter((s) => s > best * SPIN).length, worst: Math.max(...sec),
+        worstLap: ls.find((l) => l.seconds === Math.max(...sec)),
+      };
+    }
+    // Estadísticas que necesitan la historia (por tanda) del piloto en una pista
+    function history(ls) {
+      const sessions = [...byDate(ls)].map(([date, arr]) => {
+        const s = arr.slice().sort((a, b) => a.lap - b.lap), t = s.map((l) => l.seconds);
+        return { date, laps: s, times: t, best: Math.min(...t), avg: mean(t) };
+      });
+      const sec = sessions.map((s) => s.times);
+      const all = ls.map((l) => l.seconds), best = Math.min(...all);
+      const warm = sessions.filter((s) => s.laps[0].lap === 1 && s.times.length >= 3).map((s) => s.times[0] - s.best);
+      const fades = sessions.filter((s) => s.times.length >= 4).map((s) => slope(s.times.filter((x) => x <= best * CLEAN)));
+      const jit = [];
+      sessions.forEach((s) => { for (let i = 1; i < s.times.length; i++) jit.push(Math.abs(s.times[i] - s.times[i - 1])); });
+      let streak = 0;
+      sessions.forEach((s) => { let c = 0; for (let i = 1; i < s.times.length; i++) { c = s.times[i] < s.times[i - 1] ? c + 1 : 0; streak = Math.max(streak, c); } });
+      const l1l2 = sessions.filter((s) => s.laps.length > 1 && s.laps[0].lap === 1 && s.laps[1].lap === 2).map((s) => s.times[0] - s.times[1]);
+      const bestLapNums = sessions.map((s) => s.laps.find((l) => l.seconds === s.best).lap);
+      return {
+        sessions, count: sessions.length, warm: warm.length ? mean(warm) : null, fade: fades.length ? mean(fades) : null,
+        jitter: jit.length ? mean(jit) : null, streak, ahoraSi: l1l2.length ? mean(l1l2) : null, goldLap: mean(bestLapNums),
+        progress: sessions.length > 1 ? sessions[sessions.length - 1].best - sessions[0].best : null,
+        lastDelta: sessions.length > 1 ? sessions[sessions.length - 1].best - Math.min(...sessions.slice(0, -1).map((s) => s.best)) : null,
+        avgProgress: sessions.length > 1 ? sessions[sessions.length - 1].avg - sessions[0].avg : null,
+      };
+    }
+
+    // ---------- Selección ----------
+    const trackLaps = () => db.laps.filter((l) => ui.track === ALL || l.track === ui.track);
+    const scoped = () => trackLaps().filter((l) => ui.scope === "hist" || l.date === ui.date);
+    function standings(laps) {
+      const rows = [...byDriver(laps)].map(([d, ls]) => summarize(d, ls));
+      const f = { best: (a, b) => a.best - b.best, avg: (a, b) => a.avg - b.avg, clean: (a, b) => a.clean - b.clean, consistency: (a, b) => a.sd - b.sd }[ui.sort];
+      return rows.sort(f);
+    }
+
+    // ---------- Render ----------
+    function setOptions(sel, items, value, labeler) {
+      sel.replaceChildren();
+      items.forEach((it) => { const o = document.createElement("option"); o.value = it; o.textContent = labeler ? labeler(it) : it; sel.appendChild(o); });
+      if (items.includes(value)) sel.value = value;
+    }
+    function refresh() {
+      const dates = [...new Set(trackLaps().map((l) => l.date))].sort().reverse();
+      if (!dates.includes(ui.date)) ui.date = dates[0] || localDate();
+      setOptions($("trackFilter"), [ALL, ...db.tracks], ui.track, (t) => t === ALL ? "Todas (mezcla)" : t);
+      setOptions($("dateFilter"), dates.length ? dates : [ui.date], ui.date);
+      $("trackNote").classList.toggle("hidden", !(ui.track === ALL && new Set(db.laps.map((l) => l.track)).size > 1));
+      const sc = scoped();
+      $("selectedDateDisplay").textContent = ui.scope === "hist" ? "HISTÓRICO" : ui.date;
+      $("totalLapsToday").textContent = sc.length + " vueltas cronometradas";
+      const empty = db.laps.length === 0;
+      $("emptyState").classList.toggle("hidden", !empty);
+      $("dashboardBody").classList.toggle("hidden", empty);
+      updateDropdowns();
+      $("scopeDaily").className = "px-3 py-1.5 rounded-lg transition-all " + (ui.scope === "daily" ? "bg-racing-red text-white shadow" : "text-slate-400 hover:text-white");
+      $("scopeHistoric").className = "px-3 py-1.5 rounded-lg transition-all " + (ui.scope === "hist" ? "bg-racing-red text-white shadow" : "text-slate-400 hover:text-white");
+      document.querySelectorAll("[data-sort]").forEach((b) => {
+        b.className = "px-3 py-1.5 rounded-lg transition-all " + (b.dataset.sort === ui.sort ? "bg-slate-800 text-purple-400 border border-purple-500/40 font-bold" : "text-slate-400 hover:text-white");
+      });
+      if (empty) { destroyCharts(); return; }
+      renderPodium(sc); renderTable(sc); renderTrophies(); renderExtra(); renderChampionship();
+      renderTrends(); renderDriver(); renderH2H(); renderCharts();
+    }
+    function updateDropdowns() {
+      const dr = db.drivers.slice().sort((a, b) => a.localeCompare(b));
+      if (!dr.includes(ui.driver)) ui.driver = dr[0] || "";
+      if (!dr.includes(ui.a)) ui.a = dr[0] || "";
+      if (!dr.includes(ui.b) || ui.b === ui.a) ui.b = dr.find((d) => d !== ui.a) || ui.a;
+      setOptions($("selectDriverStats"), dr, ui.driver);
+      setOptions($("h2hA"), dr, ui.a);
+      setOptions($("h2hB"), dr, ui.b);
+      const ls = $("lapDriverSelect"), keep = ls.value;
+      setOptions(ls, dr, keep);
+      const lt = $("lapTrackSelect"), kt = lt.value;
+      setOptions(lt, db.tracks, kt || (ui.track !== ALL ? ui.track : DEFAULT_TRACK));
+      $("btnDeleteDriver").disabled = !ui.driver;
+    }
+
+    function renderPodium(sc) {
+      if (!sc.length) {
+        $("poleDriver").textContent = "Sin Giros"; $("poleTime").textContent = "--.---"; $("poleLapNumber").textContent = "Vuelta #--";
+        $("paceDriver").textContent = "Sin datos"; $("paceTime").textContent = "--.---"; $("paceLapCount").textContent = "-- vueltas";
+        $("gapDifference").textContent = "+0.000s"; $("totalPilotsInGrid").textContent = "0"; $("slowestDriverGap").textContent = "Cierre de grilla: --";
         return;
       }
-      let id = cleanId(l.id, "lap");
-      while (ids.has(id)) id = newId("lap");
-      ids.add(id);
-      if (!seen.has(driver.toLowerCase())) {
-        if (drivers.length >= LIMITS.maxDrivers) { skipped += 1; return; }
-        seen.add(driver.toLowerCase());
-        drivers.push(driver);
-      }
-      // Usa el nombre canónico ya registrado (mismas mayúsculas).
-      const canonical = drivers.find((x) => x.toLowerCase() === driver.toLowerCase());
-      laps.push({ id, date: l.date, driver: canonical, lap, seconds, track });
-    });
+      const rows = [...byDriver(sc)].map(([d, ls]) => summarize(d, ls));
+      const pole = rows.slice().sort((a, b) => a.best - b.best);
+      $("poleDriver").textContent = pole[0].driver;
+      $("poleTime").textContent = formatLapTime(pole[0].best);
+      $("poleLapNumber").textContent = "Vuelta #" + pole[0].bestLap;
+      const pace = rows.filter((r) => r.n >= 2).sort((a, b) => a.avg - b.avg)[0] || rows.slice().sort((a, b) => a.avg - b.avg)[0];
+      $("paceDriver").textContent = pace.driver;
+      $("paceTime").textContent = formatLapTime(pace.avg);
+      $("paceLapCount").textContent = pace.n + " vueltas";
+      const last = pole[pole.length - 1];
+      $("totalPilotsInGrid").textContent = String(rows.length);
+      $("gapDifference").textContent = "+" + (last.best - pole[0].best).toFixed(3) + "s";
+      $("slowestDriverGap").textContent = "Último: " + last.driver;
+    }
 
-    drivers.sort((a, b) => a.localeCompare(b, "es"));
-    return { drivers, tracks, laps, skipped };
-  }
-
-  function serialize(db) {
-    return JSON.stringify({ app: "karting_dashboard", version: SCHEMA_VERSION, exportedAt: new Date().toISOString(), drivers: db.drivers, tracks: db.tracks, laps: db.laps }, null, 2);
-  }
-
-  // Datos de ejemplo ficticios con nombres de personajes.
-  function demoDatabase() {
-    const track = DEFAULT_TRACK;
-    const sessions = [
-      ["2026-10-16", {
-        "Pierre Nodoyuna": [47.9, 45.6, 44.8, 44.5, 44.9],
-        "Tiroloco McGrau": [48.3, 44.9, 43.6, 43.9, 44.2],
-        "Agente Cobra": [50.2, 46.8, 45.7, 45.1],
-        "Porko Rosso": [60.1, 56.0, 54.8, 55.3],
-        "Pedro Picapiedra": [49.4, 44.6, 58.9, 45.0],
-      }],
-      ["2026-10-23", {
-        "Pierre Nodoyuna": [47.2, 44.9, 43.8, 43.5, 43.7],
-        "Tiroloco McGrau": [47.6, 44.2, 42.9, 43.3, 43.5],
-        "Agente Cobra": [49.7, 46.1, 44.8, 44.5, 44.6],
-        "Porko Rosso": [59.0, 55.1, 53.9, 54.2],
-        "Pedro Picapiedra": [48.8, 44.0, 43.9, 57.8, 44.4],
-      }],
-      ["2026-10-30", {
-        "Pierre Nodoyuna": [46.850, 44.320, 43.190, 43.050, 43.210],
-        "Tiroloco McGrau": [47.100, 43.800, 42.150, 42.680, 43.010],
-        "Agente Cobra": [49.300, 45.420, 44.110, 43.900, 44.200],
-        "Porko Rosso": [58.400, 54.120, 52.650, 53.020],
-        "Pedro Picapiedra": [48.200, 43.400, 57.300, 43.850],
-      }],
-    ];
-    const laps = [];
-    sessions.forEach(([date, byDriver]) => {
-      Object.entries(byDriver).forEach(([driver, times]) => {
-        times.forEach((seconds, i) => laps.push({ id: `demo_${date}_${driver.split(" ")[0]}_${i + 1}`, date, driver, lap: i + 1, seconds, track }));
+    function renderTable(sc) {
+      const body = $("timingTableBody");
+      body.replaceChildren();
+      $("tableEmptyState").classList.toggle("hidden", sc.length > 0);
+      if (!sc.length) return;
+      const rows = standings(sc), poleT = Math.min(...rows.map((r) => r.best));
+      const badge = [
+        '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-950 text-purple-300 font-bold border border-purple-500/50 text-xs">P1</span>',
+        '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-800 text-slate-200 font-bold border border-slate-600 text-xs">P2</span>',
+        '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-950 text-amber-500 font-bold border border-amber-700/50 text-xs">P3</span>',
+      ];
+      rows.forEach((r, i) => {
+        const delta = r.best - poleT, interval = i ? r.best - rows[i - 1].best : 0;
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900/80 transition-colors border-b border-slate-800/60";
+        const pill = delta <= 1.5 ? ["bg-emerald-950/80 text-emerald-400 border border-emerald-700/50", "🔥 PUNTERO"]
+          : delta <= 3.5 ? ["bg-yellow-950/80 text-yellow-400 border border-yellow-700/50", "⚡ RITMO MEDIO"]
+          : ["bg-red-950/80 text-red-400 border border-red-700/50", "🐢 REZAGADO"];
+        tr.innerHTML = `
+          <td class="px-4 py-3 text-center">${badge[i] || '<span class="text-slate-400 font-mono text-sm">#' + (i + 1) + "</span>"}</td>
+          <td class="px-4 py-3 font-semibold text-white"><div class="flex items-center gap-2">
+            <span class="${i === 0 ? "text-purple-300 font-bold" : ""}">${escapeHtml(r.driver)}</span>
+            ${i === 0 ? '<span class="text-[10px] font-f1 text-purple-400 bg-purple-950/80 px-1.5 py-0.5 rounded border border-purple-500/30">POLE</span>' : ""}</div></td>
+          <td class="px-4 py-3 text-right"><span class="text-base font-black font-f1 ${i === 0 ? "text-purple-400 glow-f1-purple" : "text-white"}">${formatLapTime(r.best)}</span></td>
+          <td class="px-4 py-3 text-center text-slate-400 font-mono text-xs">V.${r.bestLap}</td>
+          <td class="px-4 py-3 text-right font-mono text-slate-300 font-medium">${formatLapTime(r.avg)}</td>
+          <td class="px-4 py-3 text-right font-mono text-slate-300">${formatLapTime(r.clean)}</td>
+          <td class="px-4 py-3 text-right font-mono text-slate-400">±${r.sd.toFixed(3)}</td>
+          <td class="px-4 py-3 text-right">${delta === 0 ? '<span class="text-purple-400 font-bold font-f1">LÍDER</span>' : '<span class="text-slate-400 font-mono">+' + delta.toFixed(3) + "s</span>"}</td>
+          <td class="px-4 py-3 text-right font-mono text-slate-500 text-xs">${i ? "+" + interval.toFixed(3) + "s" : "--"}</td>
+          <td class="px-4 py-3 text-center font-mono text-slate-400 text-xs">${r.n} giros</td>
+          <td class="px-4 py-3 text-center"><span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono ${pill[0]}">${pill[1]}</span></td>`;
+        body.appendChild(tr);
       });
-    });
-    return validateDatabase({ drivers: [...new Set(laps.map((l) => l.driver))], tracks: [track], laps });
-  }
-
-  return { SCHEMA_VERSION, LIMITS, DEFAULT_TRACK, cleanName, isValidDate, isValidSeconds, newId, validateDatabase, serialize, demoDatabase };
-});
-
-/* UI del Karting Dashboard. Todo el contenido dinámico se inserta con textContent (sin innerHTML). */
-(function () {
-  "use strict";
-
-  const S = window.KartStats;
-  const D = window.KartStore;
-  const STORAGE_KEY = "karting_dashboard_v2";
-  const ALL_TRACKS = "__all__";
-  const COLORS = ["#e10600", "#ffcc00", "#00d2be", "#b138dd", "#60a5fa", "#fb923c", "#34d399", "#f472b6", "#a3e635", "#94a3b8"];
-
-  let db = { drivers: [], tracks: [D.DEFAULT_TRACK], laps: [] };
-  const ui = { track: D.DEFAULT_TRACK, date: "", scope: "daily", sort: "best", driver: "", h2hA: "", h2hB: "" };
-  const charts = { lap: null, session: null };
-
-  const $ = (id) => document.getElementById(id);
-
-  function el(tag, opts, children) {
-    const node = document.createElement(tag);
-    const o = opts || {};
-    if (o.cls) node.className = o.cls;
-    if (o.text !== undefined) node.textContent = o.text;
-    if (o.attrs) Object.entries(o.attrs).forEach(([k, v]) => node.setAttribute(k, v));
-    (children || []).forEach((c) => c && node.appendChild(c));
-    return node;
-  }
-
-  const fmt = S.formatTime;
-  const num = (n, d) => (Number.isFinite(n) ? n.toFixed(d === undefined ? 3 : d) : "--");
-  const signed = (n, d) => (Number.isFinite(n) ? `${n > 0 ? "+" : ""}${n.toFixed(d === undefined ? 3 : d)}` : "--");
-
-  // ---------- Persistencia ----------
-  function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const v = D.validateDatabase(JSON.parse(raw));
-        db = { drivers: v.drivers, tracks: v.tracks.length ? v.tracks : [D.DEFAULT_TRACK], laps: v.laps };
-      }
-    } catch (e) {
-      toast("No se pudieron leer los datos guardados; se inició vacío.", true);
     }
-  }
 
-  function save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ drivers: db.drivers, tracks: db.tracks, laps: db.laps }));
-    } catch (e) {
-      toast("No se pudo guardar (almacenamiento lleno o bloqueado). Exporta un respaldo.", true);
-    }
-  }
-
-  let toastTimer = null;
-  function toast(msg, isError) {
-    const t = $("toast");
-    t.textContent = msg;
-    t.className = isError ? "toast err" : "toast";
-    t.hidden = false;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.hidden = true; }, 4500);
-  }
-
-  // ---------- Filtros y datos visibles ----------
-  function trackLaps() {
-    return ui.track === ALL_TRACKS ? db.laps : db.laps.filter((l) => l.track === ui.track);
-  }
-
-  function visibleLaps() {
-    const base = trackLaps();
-    return ui.scope === "daily" ? base.filter((l) => l.date === ui.date) : base;
-  }
-
-  function fillSelect(select, values, selected, labelFn) {
-    select.textContent = "";
-    values.forEach((v) => {
-      const o = el("option", { text: labelFn ? labelFn(v) : v, attrs: { value: v } });
-      select.appendChild(o);
-    });
-    if (values.includes(selected)) select.value = selected;
-  }
-
-  function syncFilters() {
-    const trackOpts = [ALL_TRACKS, ...db.tracks];
-    if (!trackOpts.includes(ui.track)) ui.track = db.tracks[0];
-    fillSelect($("trackFilter"), trackOpts, ui.track, (v) => (v === ALL_TRACKS ? "Todas (mezcla)" : v));
-    $("trackNote").hidden = !(ui.track === ALL_TRACKS && db.tracks.length > 1);
-
-    const dates = [...new Set(trackLaps().map((l) => l.date))].sort().reverse();
-    if (!dates.includes(ui.date)) ui.date = dates[0] || "";
-    fillSelect($("dateFilter"), dates, ui.date, (d) => `🏁 ${d}`);
-    $("dateFilter").disabled = ui.scope !== "daily" || !dates.length;
-    $("sortFilter").value = ui.sort;
-    document.querySelectorAll(".seg button").forEach((b) => b.classList.toggle("active", b.dataset.scope === ui.scope));
-
-    if (!db.drivers.includes(ui.driver)) ui.driver = db.drivers[0] || "";
-    if (!db.drivers.includes(ui.h2hA)) ui.h2hA = db.drivers[0] || "";
-    if (!db.drivers.includes(ui.h2hB) || ui.h2hB === ui.h2hA) ui.h2hB = db.drivers.find((d) => d !== ui.h2hA) || "";
-    fillSelect($("driverSelect"), db.drivers, ui.driver);
-    fillSelect($("h2hA"), db.drivers, ui.h2hA);
-    fillSelect($("h2hB"), db.drivers, ui.h2hB);
-  }
-
-  // ---------- Render ----------
-  function render() {
-    syncFilters();
-    const hasLaps = db.laps.length > 0;
-    $("emptyState").hidden = hasLaps;
-    $("dashboard").hidden = !hasLaps;
-    if (!hasLaps) return;
-    const laps = visibleLaps();
-    renderKpis(laps);
-    renderGrid(laps);
-    renderTrophies(laps);
-    renderGroupStats(laps);
-    renderCharts(laps);
-    renderDriver();
-    renderH2H();
-  }
-
-  function renderKpis(laps) {
-    const rows = S.standings(laps, "best");
-    if (!rows.length) {
-      $("kpiPole").textContent = "--.---";
-      $("kpiPoleWho").textContent = "Sin vueltas en esta selección";
-      $("kpiClean").textContent = "--.---";
-      $("kpiSpread").textContent = "+0.000s";
-      $("kpiSpreadWho").textContent = "--";
-      $("kpiGroup").textContent = "0";
-      $("kpiGroupDetail").textContent = "pilotos · 0 vueltas";
-      return;
-    }
-    const lead = rows[0];
-    $("kpiPole").textContent = fmt(lead.best);
-    $("kpiPoleWho").textContent = `${lead.driver} · vuelta ${lead.bestLap.lap} · ${lead.bestLap.date}`;
-    const cleanVals = rows.map((r) => r.cleanAvg).filter(Number.isFinite);
-    $("kpiClean").textContent = fmt(S.mean(cleanVals));
-    const last = rows.reduce((b, r) => (r.best > b.best ? r : b));
-    $("kpiSpread").textContent = `+${(last.best - lead.best).toFixed(3)}s`;
-    $("kpiSpreadWho").textContent = rows.length > 1 ? `${lead.driver} vs ${last.driver}` : "Un solo piloto";
-    $("kpiGroup").textContent = String(rows.length);
-    $("kpiGroupDetail").textContent = `${rows.length === 1 ? "piloto" : "pilotos"} · ${laps.length} vueltas`;
-  }
-
-  function paceBadge(gap) {
-    const cls = gap <= 1.5 ? "ok" : gap <= 3.5 ? "mid" : "bad";
-    const text = gap <= 1.5 ? "🔥 PUNTERO" : gap <= 3.5 ? "⚡ RITMO MEDIO" : "🐢 REZAGADO";
-    return el("span", { cls: `pill ${cls}`, text });
-  }
-
-  function renderGrid(laps) {
-    const body = $("gridBody");
-    body.textContent = "";
-    S.standings(laps, ui.sort).forEach((r, i) => {
-      const lead = i === 0;
-      const tr = el("tr");
-      const td = (text, cls) => tr.appendChild(el("td", { text, cls }));
-      td(`${lead ? "🥇 " : ""}P${r.pos}`);
-      td(r.driver, lead ? "leader" : "");
-      td(fmt(r.best), `r mono${lead ? " leader" : ""}`);
-      td(fmt(r.avg), "r mono");
-      td(fmt(r.median), "r mono");
-      td(fmt(r.cleanAvg), "r mono");
-      td(Number.isFinite(r.stdDev) ? `±${r.stdDev.toFixed(3)}` : "--", "r mono");
-      td(lead ? "LÍDER" : `+${r.gapPole.toFixed(3)}s`, "r mono");
-      td(lead ? "--" : `+${r.interval.toFixed(3)}s`, "r mono");
-      td(String(r.count), "r mono");
-      const last = el("td");
-      last.appendChild(paceBadge(r.gapPole));
-      tr.appendChild(last);
-      body.appendChild(tr);
-    });
-  }
-
-  const TROPHY_META = {
-    verstappen: { e: "🏆", t: "EL VERSTAPPEN DE BARRIO", d: "La vuelta más rápida. Ya se cree listo para el asiento de Red Bull.", q: "Frenó con la mente y aceleró con el corazón.", f: fmt },
-    abuelita: { e: "👵", t: "LLEVANDO A LA ABUELITA", d: "La vuelta individual más exasperantemente lenta.", q: "Iba poniendo las luces de estacionamiento.", f: fmt },
-    bebe: { e: "🍼", t: "COCHE DE BEBÉ", d: "El peor promedio de vuelta del grupo.", q: "Los comisarios sacaron bandera azul solo para él.", f: fmt },
-    chicane: { e: "🐢", t: "CHICANE MÓVIL CON PATAS", d: "Mayor brecha entre su mejor vuelta y su peor desastre.", q: "En una vuelta parecía Senna, en la siguiente chocó los neumáticos.", f: (v) => `+${v.toFixed(3)}s` },
-    metronomo: { e: "🤖", t: "EL METRÓNOMO ROBÓTICO", d: "Menor desviación estándar entre sus vueltas.", q: "Parece clonado por IA en cada sector.", f: (v) => `±${v.toFixed(3)}s` },
-    trompo: { e: "🌀", t: "TROMPO SERIAL", d: "Más vueltas a más de 110% de su propia mejor vuelta.", q: "El kart giraba más que la rueda de la fortuna.", f: (v) => `${v} ${v === 1 ? "trompo" : "trompos"}` },
-    calentando: { e: "🥶", t: "CALENTANDO MOTORES", d: "Cuánto más lenta es su primera vuelta que su mejor (promedio de sesiones).", q: "Las primeras vueltas eran 'de reconocimiento'. Siempre.", f: (v) => `+${v.toFixed(3)}s` },
-    racha: { e: "🔥", t: "EN RACHA", d: "Mayor cantidad de vueltas seguidas más rápidas que la anterior.", q: "Cada vuelta, un poco menos de pánico.", f: (v) => `${v} ${v === 1 ? "mejora" : "mejoras"}` },
-    montana: { e: "🎢", t: "MONTAÑA RUSA", d: "Mayor cambio medio entre vueltas consecutivas.", q: "Ni él sabe qué tiempo va a hacer.", f: (v) => `±${v.toFixed(3)}s` },
-    dormido: { e: "😴", t: "SE DURMIÓ EN LA CURVA", d: "Más segundos pierde por vuelta dentro de la tanda (mín. 4 vueltas).", q: "Los brazos cansados también cuentan como excusa.", f: (v) => `+${v.toFixed(3)}s/vuelta` },
-    remontador: { e: "🚀", t: "EL REMONTADOR", d: "Mayor mejora de su mejor vuelta respecto de la sesión anterior.", q: "Entrenó en secreto. Seguro.", f: (v) => `${v.toFixed(3)}s` },
-    casi: { e: "😬", t: "CASI, CASI…", d: "Menor diferencia con el piloto que tiene delante.", q: "Lo pudo pasar. No lo pasó.", f: (v) => `+${v.toFixed(3)}s` },
-    bandera_azul: { e: "🔵", t: "BANDERA AZUL", d: "El más lejos de la pole.", q: "Se le ve mejor por el retrovisor del resto.", f: (v) => `+${v.toFixed(3)}s` },
-    nafta: { e: "⛽", t: "GASTADOR DE NAFTA", d: "Quien más vueltas le metió al asfalto.", q: "Se gastó el sueldo del mes en tandas de 10 minutos.", f: (v) => `${v} vueltas` },
-    fiel: { e: "📅", t: "SOCIO DEL CIRCUITO", d: "Más tandas asistidas.", q: "Tiene su propio casillero en la pista.", f: (v) => `${v} ${v === 1 ? "tanda" : "tandas"}` },
-  };
-
-  function renderTrophies(laps) {
-    const box = $("trophies");
-    box.textContent = "";
-    S.trophies(laps).forEach((t) => {
-      const m = TROPHY_META[t.id];
-      if (!m) return;
-      box.appendChild(el("article", { cls: "card" }, [
-        el("span", { cls: "emoji", text: m.e }),
-        el("h4", { text: m.t }),
-        el("p", { cls: "desc", text: m.d }),
-        el("div", { cls: "who", text: t.driver }),
-        el("div", { cls: "val", text: m.f(t.value) }),
-        el("div", { cls: "detail", text: t.detail }),
-        el("div", { cls: "quip", text: `"${m.q}"` }),
-      ]));
-    });
-    const top = S.topByLaps(laps, 3);
-    if (top.length > 1) {
+    function renderTrophies() {
+      const tl = trackLaps(), set = (id, t) => { $(id).textContent = t; };
+      if (!tl.length) return;
+      const fast = tl.reduce((a, b) => (b.seconds < a.seconds ? b : a)), slow = tl.reduce((a, b) => (b.seconds > a.seconds ? b : a));
+      set("trophyVerstappenPlayer", fast.driver); set("trophyVerstappenLap", fast.date + " (Vuelta #" + fast.lap + ")"); set("trophyVerstappenTime", formatLapTime(fast.seconds));
+      set("trophyAbuelitaPlayer", slow.driver); set("trophyAbuelitaLap", slow.date + " (Vuelta #" + slow.lap + ")"); set("trophyAbuelitaTime", formatLapTime(slow.seconds));
+      const rows = [...byDriver(tl)].map(([d, ls]) => summarize(d, ls));
+      const bebe = rows.slice().sort((a, b) => b.avg - a.avg)[0];
+      set("trophyBebePlayer", bebe.driver); set("trophyBebeCount", bebe.n + " giros registrados"); set("trophyBebeAvg", formatLapTime(bebe.avg));
+      const spread = rows.filter((r) => r.n >= 2).sort((a, b) => (b.worst - b.best) - (a.worst - a.best))[0];
+      if (spread) { set("trophyChicanePlayer", spread.driver); set("trophyChicaneDetail", formatLapTime(spread.best) + " vs " + formatLapTime(spread.worst)); set("trophyChicaneDelta", "+" + (spread.worst - spread.best).toFixed(3) + "s"); }
+      const reg = rows.filter((r) => r.n >= 3).sort((a, b) => a.sd - b.sd)[0];
+      if (reg) { set("trophyMetronomoPlayer", reg.driver); set("trophyMetronomoDetail", "Desviación en vueltas limpias (≥3 giros)"); set("trophyMetronomoDiff", "±" + reg.sd.toFixed(3) + "s"); }
+      const gas = $("trophyGasList");
+      gas.replaceChildren();
       const medals = ["🥇", "🥈", "🥉"];
-      box.appendChild(el("article", { cls: "card" }, [
-        el("span", { cls: "emoji", text: "🛢️" }),
-        el("h4", { text: "TOP 3 GASTADORES" }),
-        ...top.map((r, i) => el("div", { cls: "who", text: `${medals[i]} ${r.driver} · ${r.count}` })),
-      ]));
-    }
-  }
-
-  function stat(k, v, d, cls) {
-    return el("div", { cls: "stat" }, [
-      el("div", { cls: "k", text: k }),
-      el("div", { cls: `v${cls ? ` ${cls}` : ""}`, text: v }),
-      el("div", { cls: "d", text: d }),
-    ]);
-  }
-
-  function renderGroupStats(laps) {
-    const box = $("groupStats");
-    box.textContent = "";
-    const o = S.groupOverview(laps);
-    if (!o) { box.appendChild(stat("Sin datos", "--", "Registra vueltas para ver tendencias.")); return; }
-    const lapsOnly = laps.map((l) => l.seconds);
-    const mean = o.avg;
-    const med = o.median;
-    box.appendChild(stat("Promedio vs mediana", `${num(mean)} / ${num(med)}`, mean > med
-      ? `Un puñado de vueltas lentas sube el promedio ${(mean - med).toFixed(3)}s.`
-      : "El promedio no está inflado por vueltas lentas."));
-    box.appendChild(stat("Dispersión del grupo", Number.isFinite(o.stdDev) ? `±${o.stdDev.toFixed(3)}s` : "--", `Rango ${fmt(o.best)} – ${fmt(o.worst)} (${(o.worst - o.best).toFixed(3)}s)`));
-    box.appendChild(stat("Tiempo total en pista", `${Math.floor(o.totalSeconds / 60)}m ${Math.round(o.totalSeconds % 60)}s`, `${o.laps} vueltas · ${o.sessions} ${o.sessions === 1 ? "sesión" : "sesiones"}`));
-    if (o.dayBest.length >= 2) {
-      const s = o.dayBestSlope;
-      box.appendChild(stat("Tendencia del récord por sesión", `${signed(s)}s/sesión`, s < 0 ? "El grupo se está volviendo más rápido 📉" : s > 0 ? "El récord de cada día va empeorando 📈" : "Estancados.", s < 0 ? "up" : s > 0 ? "down" : ""));
-    }
-    const ins = S.driverInsights(laps);
-    const improvers = ins.filter((x) => Number.isFinite(x.sessionDelta));
-    if (improvers.length) {
-      const better = improvers.filter((x) => x.sessionDelta < 0).length;
-      box.appendChild(stat("Mejoraron vs sesión anterior", `${better} / ${improvers.length}`, `Promedio ${signed(S.mean(improvers.map((x) => x.sessionDelta)))}s en su mejor vuelta.`));
-    }
-    const warm = ins.map((x) => x.warmUp).filter(Number.isFinite);
-    if (warm.length) box.appendChild(stat("Costo del calentamiento", `+${S.mean(warm).toFixed(3)}s`, "Lo que pierde la 1ª vuelta vs la mejor de la tanda."));
-    const spins = ins.reduce((a, x) => a + x.summary.spins, 0);
-    box.appendChild(stat("Trompos totales", String(spins), `${((spins / lapsOnly.length) * 100).toFixed(1)}% de las vueltas pasó de 110% de la mejor del piloto.`));
-    const cv = ins.map((x) => x.summary.cv).filter(Number.isFinite);
-    if (cv.length) box.appendChild(stat("Regularidad media (CV)", `${S.mean(cv).toFixed(2)}%`, "Desviación relativa promedio; más bajo = más constante."));
-  }
-
-  // ---------- Gráficos ----------
-  function chartBase() {
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      plugins: { legend: { labels: { color: "#cbd5e1" } } },
-      scales: {
-        x: { ticks: { color: "#94a3b8" }, grid: { color: "#1a2232" } },
-        y: { reverse: true, ticks: { color: "#94a3b8" }, grid: { color: "#1a2232" } },
-      },
-    };
-  }
-
-  function renderCharts(laps) {
-    if (typeof window.Chart !== "function") { $("chartFallback").hidden = false; return; }
-    const drivers = [...new Set(laps.map((l) => l.driver))].sort();
-    const color = (name) => COLORS[db.drivers.indexOf(name) % COLORS.length];
-    const per = drivers.map((d) => laps.filter((l) => l.driver === d).sort((a, b) => a.date.localeCompare(b.date) || a.lap - b.lap));
-    const maxN = Math.max(0, ...per.map((x) => x.length));
-    const lapData = {
-      labels: Array.from({ length: maxN }, (_, i) => i + 1),
-      datasets: drivers.map((d, i) => ({ label: d, data: per[i].map((l) => l.seconds), borderColor: color(d), backgroundColor: color(d), tension: 0.25, pointRadius: 3 })),
-    };
-    charts.lap = upsert(charts.lap, "lapChart", lapData);
-
-    const all = trackLaps();
-    const dates = [...new Set(all.map((l) => l.date))].sort();
-    const dDrivers = [...new Set(all.map((l) => l.driver))].sort();
-    const sessData = {
-      labels: dates,
-      datasets: dDrivers.map((d) => ({
-        label: d,
-        borderColor: color(d),
-        backgroundColor: color(d),
-        spanGaps: true,
-        tension: 0.2,
-        data: dates.map((dt) => {
-          const v = all.filter((l) => l.driver === d && l.date === dt).map((l) => l.seconds);
-          return v.length ? Math.min(...v) : null;
-        }),
-      })),
-    };
-    charts.session = upsert(charts.session, "sessionChart", sessData);
-  }
-
-  function upsert(chart, canvasId, data) {
-    if (chart) { chart.data = data; chart.update(); return chart; }
-    return new window.Chart($(canvasId), { type: "line", data, options: chartBase() });
-  }
-
-  // ---------- Ficha individual ----------
-  function renderDriver() {
-    const cards = $("driverCards");
-    const body = $("historyBody");
-    cards.textContent = "";
-    body.textContent = "";
-    const all = trackLaps().filter((l) => l.driver === ui.driver);
-    $("btnDeleteDriver").disabled = !ui.driver;
-    if (!all.length) { cards.appendChild(stat("Sin vueltas", "--", "Este piloto no tiene vueltas en la pista seleccionada.")); return; }
-    const sum = S.summarize(all);
-    const ins = S.driverInsights(all)[0];
-    cards.appendChild(stat("Mejor vuelta personal", fmt(sum.best), `${sum.bestLap.date} · vuelta ${sum.bestLap.lap}`, "leader"));
-    cards.appendChild(stat("Promedio / mediana", `${fmt(sum.avg)} / ${fmt(sum.median)}`, `${sum.count} vueltas`));
-    cards.appendChild(stat("Promedio limpio", fmt(sum.cleanAvg), `${sum.cleanCount} vueltas ≤ 107% de su mejor`));
-    cards.appendChild(stat("Regularidad", Number.isFinite(sum.stdDev) ? `±${sum.stdDev.toFixed(3)}s` : "--", Number.isFinite(sum.cv) ? `CV ${sum.cv.toFixed(2)}%` : "Faltan vueltas"));
-    cards.appendChild(stat("Peor vuelta", fmt(sum.worst), `+${sum.spread.toFixed(3)}s sobre su mejor · ${sum.spins} trompo(s)`));
-    if (Number.isFinite(ins.sessionDelta)) {
-      cards.appendChild(stat("Vs sesión anterior", `${signed(ins.sessionDelta)}s`, ins.sessionDelta < 0 ? "Mejoró su mejor vuelta 🚀" : ins.sessionDelta > 0 ? "Empeoró su mejor vuelta 🐌" : "Igual", ins.sessionDelta < 0 ? "up" : ins.sessionDelta > 0 ? "down" : ""));
-    }
-    if (Number.isFinite(ins.warmUp)) cards.appendChild(stat("Calentamiento", `+${ins.warmUp.toFixed(3)}s`, "1ª vuelta vs mejor de la tanda (promedio)"));
-    if (Number.isFinite(ins.withinSessionSlope)) {
-      const s = ins.withinSessionSlope;
-      cards.appendChild(stat("Tendencia en tanda", `${signed(s)}s/vuelta`, s < 0 ? "Va afinando durante la tanda" : "Se cansa durante la tanda", s < 0 ? "up" : "down"));
-    }
-    all.sort((a, b) => b.date.localeCompare(a.date) || a.lap - b.lap).forEach((l) => {
-      const tr = el("tr");
-      tr.appendChild(el("td", { text: l.date }));
-      tr.appendChild(el("td", { text: l.track }));
-      tr.appendChild(el("td", { text: String(l.lap), cls: "r mono" }));
-      tr.appendChild(el("td", { text: fmt(l.seconds), cls: `r mono${l.id === sum.bestLap.id ? " leader" : ""}` }));
-      tr.appendChild(el("td", { text: l.id === sum.bestLap.id ? "PB 🟣" : `+${(l.seconds - sum.best).toFixed(3)}s`, cls: "r mono" }));
-      const act = el("td", { cls: "r" });
-      const del = el("button", { cls: "btn danger small", text: "Borrar", attrs: { type: "button", "aria-label": `Borrar vuelta ${l.lap} del ${l.date}` } });
-      del.addEventListener("click", () => {
-        if (!window.confirm("¿Borrar esta vuelta?")) return;
-        db.laps = db.laps.filter((x) => x.id !== l.id);
-        save();
-        render();
+      rows.slice().sort((a, b) => b.n - a.n).slice(0, 3).forEach((r, i) => {
+        const el = document.createElement("div");
+        el.className = "flex items-center justify-between py-1 text-xs font-mono border-b border-slate-900 last:border-0";
+        el.innerHTML = `<div class="flex items-center gap-2 truncate"><span>${medals[i]}</span><span class="font-bold truncate ${i === 0 ? "text-emerald-300" : "text-slate-200"}">${escapeHtml(r.driver)}</span></div>
+          <div class="text-right"><span class="font-f1 font-bold text-emerald-400">${r.n}</span> <span class="text-[10px] text-slate-500">vueltas</span></div>`;
+        gas.appendChild(el);
       });
-      act.appendChild(del);
-      tr.appendChild(act);
-      body.appendChild(tr);
-    });
-  }
-
-  function renderH2H() {
-    const box = $("h2hResult");
-    box.textContent = "";
-    const r = ui.h2hA && ui.h2hB ? S.headToHead(trackLaps(), ui.h2hA, ui.h2hB) : null;
-    if (!r) { box.appendChild(stat("Cara a cara", "--", "Elige dos pilotos con vueltas en la pista seleccionada.")); return; }
-    const who = (gap) => (gap < 0 ? ui.h2hA : gap > 0 ? ui.h2hB : "Empate");
-    box.appendChild(stat("Mejor vuelta", `${fmt(r.a.best)} vs ${fmt(r.b.best)}`, `${who(r.bestGap)} por ${Math.abs(r.bestGap).toFixed(3)}s`));
-    box.appendChild(stat("Promedio", `${fmt(r.a.avg)} vs ${fmt(r.b.avg)}`, `${who(r.avgGap)} por ${Math.abs(r.avgGap).toFixed(3)}s`));
-    box.appendChild(stat("Vuelta a vuelta", r.pairs ? `${r.aWins} - ${r.bWins}` : "--", r.pairs ? `${r.pairs} vueltas comparables (misma fecha, pista y nº)${r.ties ? ` · ${r.ties} empates` : ""}` : "No hay vueltas con la misma fecha y número."));
-    box.appendChild(stat("Regularidad", `${num(r.a.stdDev)} vs ${num(r.b.stdDev)}`, "Desviación estándar (menor = más constante)"));
-  }
-
-  // ---------- Formularios ----------
-  function showError(id, msg) { const p = $(id); p.textContent = msg; p.hidden = !msg; }
-
-  function today() {
-    const d = new Date();
-    const p = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-  }
-
-  function suggestLapNumber() {
-    const existing = db.laps.filter((l) => l.driver === $("lapDriver").value && l.date === $("lapDate").value && l.track === $("lapTrack").value);
-    $("lapNumber").value = existing.length ? Math.max(...existing.map((l) => l.lap)) + 1 : 1;
-  }
-
-  function openLapDialog() {
-    if (!db.drivers.length) { toast("Primero agrega un piloto.", true); openDriverDialog(); return; }
-    fillSelect($("lapDriver"), db.drivers, ui.driver);
-    fillSelect($("lapTrack"), db.tracks, ui.track === ALL_TRACKS ? db.tracks[0] : ui.track);
-    $("lapDate").value = ui.scope === "daily" && ui.date ? ui.date : today();
-    $("lapTime").value = "";
-    showError("lapError", "");
-    suggestLapNumber();
-    $("lapDialog").showModal();
-    $("lapTime").focus();
-  }
-
-  function openDriverDialog() { $("driverName").value = ""; showError("driverError", ""); $("driverDialog").showModal(); $("driverName").focus(); }
-  function openTrackDialog() { $("trackName").value = ""; showError("trackError", ""); $("trackDialog").showModal(); $("trackName").focus(); }
-
-  function submitLap(ev) {
-    ev.preventDefault();
-    const driver = $("lapDriver").value;
-    const track = $("lapTrack").value;
-    const date = $("lapDate").value;
-    const lap = Number($("lapNumber").value);
-    const seconds = S.parseTime($("lapTime").value);
-    if (!db.drivers.includes(driver) || !db.tracks.includes(track)) return showError("lapError", "Piloto o pista inválidos.");
-    if (!D.isValidDate(date)) return showError("lapError", "Fecha inválida.");
-    if (!Number.isInteger(lap) || lap < 1 || lap > D.LIMITS.maxLapNumber) return showError("lapError", `El número de vuelta debe estar entre 1 y ${D.LIMITS.maxLapNumber}.`);
-    if (seconds === null || !D.isValidSeconds(seconds)) return showError("lapError", "Tiempo inválido. Usa 43.520 o 1:02.150 (entre 10 s y 10 min).");
-    if (db.laps.length >= D.LIMITS.maxLaps) return showError("lapError", "Se alcanzó el máximo de vueltas.");
-    if (db.laps.some((l) => l.driver === driver && l.date === date && l.track === track && l.lap === lap)) {
-      return showError("lapError", "Ya existe esa vuelta para ese piloto, fecha y pista.");
     }
-    db.laps.push({ id: D.newId("lap"), date, driver, lap, seconds, track });
-    ui.driver = driver;
-    if (ui.track !== ALL_TRACKS) ui.track = track;
-    ui.date = date;
-    save();
-    $("lapDialog").close();
-    render();
-    toast(`Vuelta de ${driver}: ${fmt(seconds)}`);
-  }
 
-  function submitDriver(ev) {
-    ev.preventDefault();
-    const name = D.cleanName($("driverName").value);
-    if (!name) return showError("driverError", `Nombre inválido (1 a ${D.LIMITS.maxNameLength} caracteres, sin < >).`);
-    if (db.drivers.some((d) => d.toLowerCase() === name.toLowerCase())) return showError("driverError", "Ese piloto ya existe.");
-    if (db.drivers.length >= D.LIMITS.maxDrivers) return showError("driverError", "Se alcanzó el máximo de pilotos.");
-    db.drivers.push(name);
-    db.drivers.sort((a, b) => a.localeCompare(b, "es"));
-    ui.driver = name;
-    save();
-    $("driverDialog").close();
-    render();
-  }
+    // Tarjeta genérica de trofeo/tendencia; todos los textos se escapan
+    function card(icon, title, who, value, detail, joke) {
+      return `<div class="bg-gradient-to-br from-slate-900 via-racing-panel to-slate-950 border border-slate-800 p-4 rounded-2xl hover:border-slate-600 transition-all">
+        <div class="flex items-start justify-between"><span class="text-2xl">${icon}</span><span class="text-xs font-mono bg-slate-950 text-racing-yellow px-2 py-0.5 rounded border border-slate-700">${escapeHtml(value)}</span></div>
+        <h4 class="mt-2 text-sm font-f1 font-bold text-white tracking-wide">${escapeHtml(title)}</h4>
+        <p class="text-lg font-bold text-racing-cyan truncate">${escapeHtml(who)}</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(detail)}</p>
+        <p class="text-[10px] text-slate-500 mt-2 font-mono italic">"${escapeHtml(joke)}"</p></div>`;
+    }
+    function perDriver() {
+      const out = [];
+      byDriver(trackLaps()).forEach((ls, d) => out.push({ d, s: summarize(d, ls), h: history(ls) }));
+      return out;
+    }
+    const pick = (arr, f, dir = 1) => arr.filter((x) => f(x) !== null && f(x) !== undefined).sort((a, b) => dir * (f(b) - f(a)))[0];
 
-  function submitTrack(ev) {
-    ev.preventDefault();
-    const name = D.cleanName($("trackName").value);
-    if (!name) return showError("trackError", `Nombre inválido (1 a ${D.LIMITS.maxNameLength} caracteres, sin < >).`);
-    if (db.tracks.some((t) => t.toLowerCase() === name.toLowerCase())) return showError("trackError", "Esa pista ya existe.");
-    if (db.tracks.length >= D.LIMITS.maxTracks) return showError("trackError", "Se alcanzó el máximo de pistas.");
-    db.tracks.push(name);
-    ui.track = name;
-    save();
-    $("trackDialog").close();
-    render();
-  }
-
-  // ---------- Datos ----------
-  function exportJson() {
-    const blob = new Blob([D.serialize(db)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = el("a", { attrs: { href: url, download: `karting_dashboard_${today()}.json` } });
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-
-  function importJson(file) {
-    if (!file) return;
-    if (file.size > D.LIMITS.maxImportBytes) { toast("El archivo es demasiado grande.", true); return; }
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const v = D.validateDatabase(JSON.parse(String(reader.result)));
-        if (!window.confirm(`Esto reemplazará tus datos actuales por ${v.laps.length} vueltas y ${v.drivers.length} pilotos. ¿Continuar?`)) return;
-        db = { drivers: v.drivers, tracks: v.tracks.length ? v.tracks : [D.DEFAULT_TRACK], laps: v.laps };
-        save();
-        render();
-        toast(`Importado: ${v.laps.length} vueltas${v.skipped ? ` (${v.skipped} descartadas por inválidas)` : ""}.`);
-      } catch (e) {
-        toast(`Importación rechazada: ${e.message}`, true);
+    function renderExtra() {
+      const P = perDriver(), out = [];
+      const add = (x) => { if (x) out.push(x); };
+      const trompo = pick(P, (x) => x.s.spins); if (trompo && trompo.s.spins > 0)
+        add(card("🌀", "REY DEL TROMPO", trompo.d, trompo.s.spins + " trompos", "Vueltas con más de 110% de su mejor tiempo.", "Se vio la curva, pero la curva no lo vio a él."));
+      const warm = pick(P, (x) => x.h.warm); if (warm && warm.h.warm > 0)
+        add(card("😴", "DORMIDO EN LA LARGADA", warm.d, "+" + warm.h.warm.toFixed(2) + "s", "Lo que pierde en la vuelta 1 vs su mejor de la tanda.", "El semáforo se puso verde y él seguía en el estacionamiento."));
+      const fade = pick(P, (x) => x.h.fade); if (fade && fade.h.fade > 0)
+        add(card("🪫", "SE DURMIÓ EN LA CURVA", fade.d, "+" + fade.h.fade.toFixed(3) + "s/vta", "Tendencia a empeorar dentro de la tanda (vueltas limpias).", "Empezó como Verstappen y terminó como paseo familiar."));
+      const rise = pick(P, (x) => x.h.progress, -1); if (rise && rise.h.progress < 0)
+        add(card("🚀", "EL REMONTADOR", rise.d, sgn(rise.h.progress), "Mejor de su última tanda vs la primera.", "Entrenando en secreto. Sospechoso."));
+      const jit = pick(P, (x) => x.h.jitter); if (jit)
+        add(card("🎢", "MONTAÑA RUSA", jit.d, "±" + jit.h.jitter.toFixed(2) + "s", "Cambio promedio entre vueltas consecutivas.", "Ni él sabe qué tiempo va a hacer en la próxima."));
+      const late = pick(P, (x) => x.h.goldLap); if (late && P.length > 1)
+        add(card("🌷", "FLOR TARDÍA", late.d, "V." + late.h.goldLap.toFixed(1), "Vuelta promedio en que logra su mejor tiempo.", "Entra en calor justo cuando se acaba la plata."));
+      const str = pick(P, (x) => x.h.streak); if (str && str.h.streak >= 2)
+        add(card("📉", "RACHA DE MEJORA", str.d, str.h.streak + " seguidas", "Vueltas consecutivas bajando el tiempo.", "Cada vuelta más rápida, cada vuelta más confiado."));
+      const rec = [...P].sort((a, b) => a.s.best - b.s.best);
+      if (rec.length > 1) {
+        const near = rec.slice(1).sort((a, b) => a.s.best - b.s.best)[0];
+        add(card("🥈", "CASI-CASI", near.d, "+" + (near.s.best - rec[0].s.best).toFixed(3) + "s", "Distancia al récord de la pista.", "A una milésima de la gloria y a un trompo de la vergüenza."));
       }
-    };
-    reader.onerror = () => toast("No se pudo leer el archivo.", true);
-    reader.readAsText(file);
-  }
+      const pedal = pick(P, (x) => x.s.avg - x.s.best); if (pedal && P.length > 1)
+        add(card("🦶", "BRECHA DEL PEDAL", pedal.d, "+" + (pedal.s.avg - pedal.s.best).toFixed(2) + "s", "Distancia entre su promedio y su mejor vuelta.", "Sabe ir rápido. Lo hizo una vez. Como casualidad."));
+      const soc = pick(P, (x) => x.h.count); if (soc && soc.h.count > 1)
+        add(card("🤝", "SOCIO DEL CIRCUITO", soc.d, soc.h.count + " tandas", "Quien más fechas ha asistido.", "Tiene más asistencia que el trabajo."));
+      $("extraTrophies").innerHTML = out.join("") || '<p class="text-xs text-slate-500 col-span-full">Con más vueltas y fechas aparecerán más trofeos.</p>';
+    }
 
-  function loadDemo() {
-    if (db.laps.length && !window.confirm("Esto reemplazará tus datos actuales por datos de ejemplo. ¿Continuar?")) return;
-    const v = D.demoDatabase();
-    db = { drivers: v.drivers, tracks: v.tracks, laps: v.laps };
-    ui.track = D.DEFAULT_TRACK;
-    ui.date = "";
-    save();
-    render();
-  }
+    function championship() {
+      const pts = new Map();
+      byDate(trackLaps()).forEach((arr) => {
+        const rows = [...byDriver(arr)].map(([d, ls]) => ({ d, best: Math.min(...ls.map((l) => l.seconds)) })).sort((a, b) => a.best - b.best);
+        rows.forEach((r, i) => {
+          const e = pts.get(r.d) || { d: r.d, pts: 0, poles: 0, podiums: 0, sessions: 0 };
+          e.pts += POINTS[i] || 0; e.sessions++; if (i === 0) e.poles++; if (i < 3) e.podiums++;
+          pts.set(r.d, e);
+        });
+      });
+      return [...pts.values()].sort((a, b) => b.pts - a.pts || b.poles - a.poles);
+    }
+    function renderChampionship() {
+      const body = $("championshipBody");
+      body.replaceChildren();
+      championship().forEach((r, i) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900/80";
+        tr.innerHTML = `<td class="px-4 py-2.5 text-center text-slate-400">${["🥇", "🥈", "🥉"][i] || "#" + (i + 1)}</td>
+          <td class="px-4 py-2.5 font-semibold text-white">${escapeHtml(r.d)}</td>
+          <td class="px-4 py-2.5 text-right font-f1 font-bold text-racing-yellow">${r.pts}</td>
+          <td class="px-4 py-2.5 text-center">${r.poles}</td><td class="px-4 py-2.5 text-center">${r.podiums}</td>
+          <td class="px-4 py-2.5 text-center">${r.sessions}</td><td class="px-4 py-2.5 text-right text-slate-400">${(r.pts / r.sessions).toFixed(1)}</td>`;
+        body.appendChild(tr);
+      });
+    }
 
-  function resetAll() {
-    if (!window.confirm("¿Borrar TODOS los pilotos, pistas y vueltas de este navegador?")) return;
-    db = { drivers: [], tracks: [D.DEFAULT_TRACK], laps: [] };
-    save();
-    render();
-  }
+    function renderTrends() {
+      const sc = scoped(), P = perDriver(), out = [];
+      const add = (x) => { if (x) out.push(x); };
+      const scoped_ = [...byDriver(sc)].map(([d, ls]) => summarize(d, ls));
+      const liar = scoped_.filter((s) => s.n >= 4).sort((a, b) => (b.avg - b.median) - (a.avg - a.median))[0];
+      if (liar && liar.avg - liar.median > 0.05)
+        add(card("🤥", "EL PROMEDIO MIENTE", liar.driver, "+" + (liar.avg - liar.median).toFixed(2) + "s", "Promedio menos mediana: una vuelta pésima arruina todo.", "No es lento: un solo trompo le pesa en el alma."));
+      const shake = scoped_.filter((s) => s.n >= 3).sort((a, b) => b.cv - a.cv)[0];
+      if (shake) add(card("🫨", "ÍNDICE DE TEMBLOR", shake.driver, (shake.cv * 100).toFixed(1) + "%", "Variación (desv./promedio) de sus vueltas.", "Maneja como si el volante estuviera frío."));
+      const ahora = pick(P, (x) => x.h.ahoraSi);
+      if (ahora && ahora.h.ahoraSi > 0) add(card("💡", "AHORA SÍ", ahora.d, sgn(-ahora.h.ahoraSi, 2), "Mejora promedio entre su vuelta 1 y su vuelta 2.", "Recién ahí entendió que era una carrera."));
+      const tiger = pick(P, (x) => x.h.lastDelta, -1);
+      if (tiger && tiger.h.lastDelta < 0) add(card("🐯", "EYE OF THE TIGER", tiger.d, sgn(tiger.h.lastDelta), "Última tanda vs su mejor marca previa.", "Entrenó en la montaña con música de los 80."));
+      const kid = pick(P, (x) => x.h.avgProgress, -1);
+      if (kid && kid.h.avgProgress < 0) add(card("🥋", "NIÑO KARATE KID", kid.d, sgn(kid.h.avgProgress, 2), "Mejora de su promedio: última tanda vs la primera.", "Pasó cera, pulió cera… y ahora gira."));
+      const last = scoped_.slice().sort((a, b) => b.best - a.best)[0], poleS = scoped_.slice().sort((a, b) => a.best - b.best)[0];
+      if (last && scoped_.length > 1) add(card("🔭", "DE AQUÍ TE VEO, INSECTO", last.driver, "+" + (last.best - poleS.best).toFixed(2) + "s", "Distancia a la pole en el filtro actual.", "La pole le saluda desde el horizonte."));
+      const sugar = pick(P, (x) => x.s.n); if (sugar)
+        add(card("💸", "SUGARDADDY PAGA", sugar.d, sugar.s.n + " vueltas", sugar.h.count + " tandas, " + (sugar.s.n / sugar.h.count).toFixed(1) + " vueltas por tanda.", "Financia el kartódromo él solito."));
+      const record = [...byDate(trackLaps())].map(([d, arr]) => ({ d, best: Math.min(...arr.map((l) => l.seconds)) }));
+      if (record.length > 1) {
+        const diff = record[record.length - 1].best - record[0].best;
+        add(card("🏆", "RÉCORD DEL GRUPO", diff <= 0 ? "El grupo mejora" : "El grupo empeora", sgn(diff), "Mejor vuelta de la última tanda vs la primera.", "Como grupo, un desastre bien organizado."));
+      }
+      $("trendGrid").innerHTML = out.join("") || '<p class="text-xs text-slate-500 col-span-full">Registra más vueltas y fechas para ver tendencias.</p>';
+    }
 
-  function deleteDriver() {
-    if (!ui.driver) return;
-    const n = db.laps.filter((l) => l.driver === ui.driver).length;
-    if (!window.confirm(`¿Eliminar a ${ui.driver} y sus ${n} vueltas (de todas las pistas)?`)) return;
-    db.laps = db.laps.filter((l) => l.driver !== ui.driver);
-    db.drivers = db.drivers.filter((d) => d !== ui.driver);
-    save();
-    render();
-  }
+    function renderDriver() {
+      const d = ui.driver, set = (id, t) => { $(id).textContent = t; };
+      const ls = trackLaps().filter((l) => l.driver === d), body = $("driverLapsTableBody");
+      body.replaceChildren(); $("driverExtraStats").replaceChildren();
+      if (!ls.length) {
+        set("driverStatBestLap", "--.---"); set("driverStatBestLapDetail", "Sin vueltas en este filtro");
+        set("driverStatAvgLap", "--.---"); set("driverStatLapsCount", "0 vueltas"); set("driverStatGapPole", "--"); set("driverStatGapComment", "--");
+        set("driverStatWorstLap", "--.---"); set("driverStatWorstLapDetail", "--");
+        body.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-500">Sin vueltas registradas para este piloto.</td></tr>';
+        return;
+      }
+      const s = summarize(d, ls), h = history(ls), rec = Math.min(...trackLaps().map((l) => l.seconds));
+      set("driverStatBestLap", formatLapTime(s.best)); set("driverStatBestLapDetail", s.bestDate + " (Vuelta #" + s.bestLap + ")");
+      set("driverStatAvgLap", formatLapTime(s.avg)); set("driverStatLapsCount", s.n + " vueltas");
+      set("driverStatGapPole", s.best === rec ? "RÉCORD" : "+" + (s.best - rec).toFixed(3) + "s");
+      set("driverStatGapComment", s.best === rec ? "Dueño del récord de la pista" : "Distancia al récord de la pista");
+      set("driverStatWorstLap", formatLapTime(s.worst)); set("driverStatWorstLapDetail", s.worstLap.date + " (Vuelta #" + s.worstLap.lap + ")");
+      const extra = [
+        ["Promedio limpio", formatLapTime(s.clean)], ["Regularidad", "±" + s.sd.toFixed(3) + "s"], ["Trompos", String(s.spins)],
+        ["Calentamiento", h.warm === null ? "--" : sgn(h.warm, 2)], ["Tendencia/tanda", h.fade === null ? "--" : sgn(h.fade) + "/vta"],
+        ["Montaña rusa", h.jitter === null ? "--" : "±" + h.jitter.toFixed(2) + "s"], ["Evolución total", h.progress === null ? "--" : sgn(h.progress)],
+        ["Brecha pedal", "+" + (s.avg - s.best).toFixed(2) + "s"], ["Mediana", formatLapTime(s.median)], ["Tandas", String(h.count)],
+      ];
+      extra.forEach(([k, v]) => {
+        const el = document.createElement("div");
+        el.className = "bg-slate-900/80 border border-slate-800 rounded-xl p-3";
+        el.innerHTML = `<div class="text-[10px] font-mono text-slate-500 uppercase">${escapeHtml(k)}</div><div class="font-f1 text-sm font-bold text-white mt-1">${escapeHtml(v)}</div>`;
+        $("driverExtraStats").appendChild(el);
+      });
+      ls.slice().sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.lap - b.lap)).forEach((l) => {
+        const delta = l.seconds - s.best, tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900 transition-colors";
+        tr.innerHTML = `<td class="px-4 py-2.5 text-slate-300">${escapeHtml(l.date)}</td><td class="px-4 py-2.5 text-slate-400">${escapeHtml(l.track)}</td>
+          <td class="px-4 py-2.5 text-center text-slate-400">Vuelta #${l.lap}</td>
+          <td class="px-4 py-2.5 text-right font-f1 font-bold ${delta === 0 ? "text-purple-400 glow-f1-purple" : "text-white"}">${formatLapTime(l.seconds)}</td>
+          <td class="px-4 py-2.5 text-right text-slate-400">${delta === 0 ? '<span class="text-purple-400 font-bold">PB (Récord)</span>' : "+" + delta.toFixed(3) + "s"}</td>
+          <td class="px-4 py-2.5 text-center"><button type="button" data-del-lap="${escapeHtml(l.id)}" class="text-rose-500 hover:text-rose-300 p-1 text-xs" aria-label="Borrar vuelta">🗑️</button></td>`;
+        body.appendChild(tr);
+      });
+    }
 
-  // ---------- Eventos ----------
-  function bind() {
-    $("btnAddLap").addEventListener("click", openLapDialog);
-    $("btnAddDriver").addEventListener("click", openDriverDialog);
-    $("btnAddTrack").addEventListener("click", openTrackDialog);
-    $("btnExport").addEventListener("click", exportJson);
-    $("importFile").addEventListener("change", (e) => { importJson(e.target.files[0]); e.target.value = ""; });
-    $("btnDemo").addEventListener("click", loadDemo);
-    $("btnDemo2").addEventListener("click", loadDemo);
-    $("btnReset").addEventListener("click", resetAll);
-    $("btnDeleteDriver").addEventListener("click", deleteDriver);
-    $("lapForm").addEventListener("submit", submitLap);
-    $("driverForm").addEventListener("submit", submitDriver);
-    $("trackForm").addEventListener("submit", submitTrack);
-    ["lapDriver", "lapTrack", "lapDate"].forEach((id) => $(id).addEventListener("change", suggestLapNumber));
-    document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => b.closest("dialog").close()));
-    $("trackFilter").addEventListener("change", (e) => { ui.track = e.target.value; render(); });
-    $("dateFilter").addEventListener("change", (e) => { ui.date = e.target.value; render(); });
-    $("sortFilter").addEventListener("change", (e) => { ui.sort = e.target.value; render(); });
-    $("driverSelect").addEventListener("change", (e) => { ui.driver = e.target.value; renderDriver(); });
-    $("h2hA").addEventListener("change", (e) => { ui.h2hA = e.target.value; renderH2H(); });
-    $("h2hB").addEventListener("change", (e) => { ui.h2hB = e.target.value; renderH2H(); });
-    document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => { ui.scope = b.dataset.scope; render(); }));
-  }
+    function renderH2H() {
+      const box = $("h2hResult");
+      box.replaceChildren();
+      const tl = trackLaps(), la = tl.filter((l) => l.driver === ui.a), lb = tl.filter((l) => l.driver === ui.b);
+      if (!la.length || !lb.length || ui.a === ui.b) { box.innerHTML = '<p class="text-xs text-slate-500 col-span-full">Elige dos pilotos con vueltas en esta pista.</p>'; return; }
+      const A = summarize(ui.a, la), B = summarize(ui.b, lb);
+      const kb = new Map(lb.map((l) => [l.date + "|" + l.lap, l.seconds]));
+      let wa = 0, wb = 0;
+      la.forEach((l) => { const o = kb.get(l.date + "|" + l.lap); if (o !== undefined) { if (l.seconds < o) wa++; else if (o < l.seconds) wb++; } });
+      const mk = (t, va, vb, f, low = true) => {
+        const w = va === vb ? 0 : (va < vb) === low ? 1 : 2;
+        return `<div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3"><div class="text-[10px] font-mono text-slate-500 uppercase">${escapeHtml(t)}</div>
+          <div class="flex justify-between mt-1 font-f1 text-sm"><span class="${w === 1 ? "text-emerald-400" : "text-slate-300"}">${escapeHtml(f(va))}</span><span class="${w === 2 ? "text-emerald-400" : "text-slate-300"}">${escapeHtml(f(vb))}</span></div></div>`;
+      };
+      box.innerHTML = mk("Mejor vuelta", A.best, B.best, formatLapTime) + mk("Promedio limpio", A.clean, B.clean, formatLapTime) +
+        mk("Regularidad (±)", A.sd, B.sd, (v) => v.toFixed(3) + "s") + mk("Vueltas ganadas cara a cara", wa, wb, String, false);
+    }
 
-  load();
-  bind();
-  render();
-})();
+    // ---------- Gráficos ----------
+    function destroyCharts() { [chartA, chartB].forEach((c) => c && c.destroy()); chartA = chartB = null; }
+    function renderCharts() {
+      const ok = typeof Chart !== "undefined";
+      $("chartFallback").classList.toggle("hidden", ok); $("chartFallback2").classList.toggle("hidden", ok);
+      $("lapTelemetryChart").classList.toggle("hidden", !ok); $("sessionTrendChart").classList.toggle("hidden", !ok);
+      const dates = [...byDate(trackLaps()).keys()];
+      const recs = [...byDate(trackLaps())].map(([d, a]) => Math.min(...a.map((l) => l.seconds)));
+      $("sessionTrendSummary").textContent = dates.length < 2
+        ? "Necesitas al menos 2 fechas en la pista elegida para ver la curva."
+        : "Promedio por piloto en cada fecha. Récord del grupo: " + formatLapTime(recs[0]) + " → " + formatLapTime(recs[recs.length - 1]) + ".";
+      if (!ok) return;
+      destroyCharts();
+      const palette = ["#00d2be", "#e10600", "#ffcc00", "#b138dd", "#3b82f6", "#f97316", "#10b981"];
+      const axis = { grid: { color: "rgba(51,65,85,0.25)" }, ticks: { color: "#94a3b8", font: { family: "Orbitron", size: 10 } } };
+      const opts = (extraY) => ({
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: "#cbd5e1", font: { family: "Inter", size: 11, weight: "bold" } } },
+          tooltip: { backgroundColor: "#0f172a", callbacks: { label: (c) => c.dataset.label + ": " + formatLapTime(c.parsed.y) + "s" } } },
+        scales: { x: axis, y: Object.assign({ reverse: true }, axis, { ticks: Object.assign({}, axis.ticks, { callback: (v) => v.toFixed(1) + "s" }) }, extraY) },
+      });
+      const day = trackLaps().filter((l) => l.date === ui.date), dm = byDriver(day);
+      const max = Math.max(1, ...day.map((l) => l.lap));
+      chartA = new Chart($("lapTelemetryChart").getContext("2d"), {
+        type: "line",
+        data: { labels: Array.from({ length: max }, (_, i) => "V." + (i + 1)),
+          datasets: [...dm].map(([d, ls], i) => ({ label: d, data: Array.from({ length: max }, (_, k) => { const m = ls.find((l) => l.lap === k + 1); return m ? m.seconds : null; }),
+            borderColor: palette[i % 7], backgroundColor: palette[i % 7], tension: 0.25, spanGaps: true, pointRadius: 4, borderWidth: 2 })) },
+        options: opts({}),
+      });
+      const drivers = [...byDriver(trackLaps()).keys()], dd = byDate(trackLaps());
+      chartB = new Chart($("sessionTrendChart").getContext("2d"), {
+        type: "line",
+        data: { labels: dates, datasets: drivers.map((d, i) => ({ label: d,
+          data: dates.map((dt) => { const ls = dd.get(dt).filter((l) => l.driver === d); return ls.length ? mean(ls.map((l) => l.seconds)) : null; }),
+          borderColor: palette[i % 7], backgroundColor: palette[i % 7], tension: 0.25, spanGaps: true, pointRadius: 4, borderWidth: 2 })) },
+        options: opts({}),
+      });
+    }
+
+    // ---------- Acciones ----------
+    let toastTimer = 0;
+    function toast(msg) {
+      const t = $("toastNotification");
+      $("toastMsg").textContent = msg;
+      t.classList.remove("translate-y-24", "opacity-0");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.add("translate-y-24", "opacity-0"), 3000);
+    }
+    const openModal = (id) => $(id).classList.remove("hidden");
+    const closeModal = (id) => $(id).classList.add("hidden");
+    function showErr(id, msg) { const e = $(id); e.textContent = msg; e.classList.toggle("hidden", !msg); }
+    function suggestLap() {
+      const d = $("lapDriverSelect").value, t = $("lapTrackSelect").value, dt = $("lapDateInput").value;
+      const nums = db.laps.filter((l) => l.driver === d && l.track === t && l.date === dt).map((l) => l.lap);
+      $("lapNumberInput").value = nums.length ? Math.min(Math.max(...nums) + 1, LIM.maxLap) : 1;
+    }
+    function download(name, text) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+      a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    function bind() {
+      $("btnOpenLapModal").addEventListener("click", () => {
+        if (!db.drivers.length) { toast("Primero agrega un piloto."); return; }
+        showErr("lapError", ""); $("lapDateInput").value = ui.scope === "daily" && isValidDate(ui.date) ? ui.date : localDate();
+        $("lapTimeInput").value = ""; suggestLap(); openModal("modalLap");
+      });
+      $("btnOpenDriverModal").addEventListener("click", () => { showErr("driverError", ""); $("newDriverNameInput").value = ""; openModal("modalDriver"); $("newDriverNameInput").focus(); });
+      $("btnOpenTrackModal").addEventListener("click", () => { showErr("trackError", ""); $("newTrackNameInput").value = ""; openModal("modalTrack"); $("newTrackNameInput").focus(); });
+      $("btnCloseLapModal").addEventListener("click", () => closeModal("modalLap"));
+      $("btnCloseDriverModal").addEventListener("click", () => closeModal("modalDriver"));
+      $("btnCloseTrackModal").addEventListener("click", () => closeModal("modalTrack"));
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") ["modalLap", "modalDriver", "modalTrack"].forEach(closeModal); });
+      ["lapDriverSelect", "lapTrackSelect", "lapDateInput"].forEach((id) => $(id).addEventListener("change", suggestLap));
+
+      $("formLap").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const driver = $("lapDriverSelect").value, track = $("lapTrackSelect").value, date = $("lapDateInput").value;
+        const lap = Number($("lapNumberInput").value), seconds = parseTime($("lapTimeInput").value);
+        if (!db.drivers.includes(driver) || !db.tracks.includes(track)) return showErr("lapError", "Piloto o pista no válidos.");
+        if (!isValidDate(date)) return showErr("lapError", "Fecha no válida.");
+        if (!Number.isInteger(lap) || lap < 1 || lap > LIM.maxLap) return showErr("lapError", "El número de vuelta debe estar entre 1 y " + LIM.maxLap + ".");
+        if (seconds === null) return showErr("lapError", "Tiempo no válido (ej. 43.520 o 1:02.150, entre 10 s y 10 min).");
+        if (db.laps.length >= LIM.laps) return showErr("lapError", "Límite de vueltas alcanzado.");
+        const rec = { id: newId(), date, driver, lap, seconds, track };
+        if (db.laps.some((l) => lapKey(l) === lapKey(rec))) return showErr("lapError", "Ese piloto ya tiene esa vuelta registrada ese día en esa pista.");
+        db.laps.push(rec); ui.date = date; ui.track = ui.track === ALL ? ALL : track; ui.scope = "daily"; ui.driver = driver;
+        save(); closeModal("modalLap"); refresh(); toast("Vuelta registrada: " + formatLapTime(seconds) + "s");
+      });
+      $("formDriver").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const n = cleanName($("newDriverNameInput").value);
+        if (!n) return showErr("driverError", "Nombre no válido (1 a " + LIM.name + " caracteres).");
+        if (db.drivers.some((d) => d.toLowerCase() === n.toLowerCase())) return showErr("driverError", "Ese piloto ya existe.");
+        if (db.drivers.length >= LIM.drivers) return showErr("driverError", "Límite de pilotos alcanzado.");
+        db.drivers.push(n); ui.driver = n; save(); closeModal("modalDriver"); refresh(); toast("Piloto inscrito: " + n);
+      });
+      $("formTrack").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const n = cleanName($("newTrackNameInput").value);
+        if (!n) return showErr("trackError", "Nombre no válido (1 a " + LIM.name + " caracteres).");
+        if (db.tracks.some((t) => t.toLowerCase() === n.toLowerCase())) return showErr("trackError", "Esa pista ya existe.");
+        if (db.tracks.length >= LIM.tracks) return showErr("trackError", "Límite de pistas alcanzado.");
+        db.tracks.push(n); ui.track = n; save(); closeModal("modalTrack"); refresh(); toast("Pista agregada: " + n);
+      });
+
+      $("trackFilter").addEventListener("change", (e) => { ui.track = e.target.value; refresh(); });
+      $("dateFilter").addEventListener("change", (e) => { ui.date = e.target.value; refresh(); });
+      $("scopeDaily").addEventListener("click", () => { ui.scope = "daily"; refresh(); });
+      $("scopeHistoric").addEventListener("click", () => { ui.scope = "hist"; refresh(); });
+      document.querySelectorAll("[data-sort]").forEach((b) => b.addEventListener("click", () => { ui.sort = b.dataset.sort; refresh(); }));
+      $("selectDriverStats").addEventListener("change", (e) => { ui.driver = e.target.value; renderDriver(); });
+      $("h2hA").addEventListener("change", (e) => { ui.a = e.target.value; updateDropdowns(); renderH2H(); });
+      $("h2hB").addEventListener("change", (e) => { ui.b = e.target.value; renderH2H(); });
+
+      $("driverLapsTableBody").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-del-lap]");
+        if (!btn) return;
+        db.laps = db.laps.filter((l) => l.id !== btn.dataset.delLap);
+        save(); refresh(); toast("Vuelta eliminada de la telemetría.");
+      });
+      $("btnDeleteDriver").addEventListener("click", () => {
+        const d = ui.driver;
+        if (!d || !confirm("¿Eliminar a " + d + " y todas sus vueltas?")) return;
+        db.drivers = db.drivers.filter((x) => x !== d); db.laps = db.laps.filter((l) => l.driver !== d);
+        save(); refresh(); toast("Piloto eliminado.");
+      });
+
+      $("btnMoreActions").addEventListener("click", (e) => { e.stopPropagation(); $("moreMenu").classList.toggle("hidden"); });
+      document.addEventListener("click", (e) => { if (!$("moreActionsDropdown").contains(e.target)) $("moreMenu").classList.add("hidden"); });
+      $("btnExportJSON").addEventListener("click", () => {
+        download("karting_dashboard_" + localDate() + ".json", JSON.stringify({ app: "karting_dashboard", version: 2, drivers: db.drivers, tracks: db.tracks, laps: db.laps }, null, 2));
+        toast("Respaldo exportado.");
+      });
+      $("importFileInput").addEventListener("change", (e) => {
+        const f = e.target.files[0];
+        e.target.value = "";
+        if (!f) return;
+        if (f.size > LIM.importBytes) return toast("Archivo demasiado grande (máx. 5 MB).");
+        const r = new FileReader();
+        r.onload = () => {
+          try {
+            const v = validateDatabase(JSON.parse(String(r.result)));
+            if (!confirm("Se reemplazarán los datos actuales por " + v.laps.length + " vueltas y " + v.drivers.length + " pilotos" + (v.discarded ? " (" + v.discarded + " registros inválidos descartados)" : "") + ". ¿Continuar?")) return;
+            db = { drivers: v.drivers, tracks: v.tracks, laps: v.laps }; ui.track = ALL; save(); refresh(); toast("Datos restaurados.");
+          } catch (err) { toast("No se pudo importar: archivo inválido."); }
+        };
+        r.onerror = () => toast("No se pudo leer el archivo.");
+        r.readAsText(f);
+      });
+      const demo = () => {
+        if (db.laps.length && !confirm("Se reemplazarán los datos actuales por datos de ejemplo. ¿Continuar?")) return;
+        const v = demoDatabase(); db = { drivers: v.drivers, tracks: v.tracks, laps: v.laps }; ui.track = ALL; ui.scope = "daily"; ui.date = "";
+        save(); $("moreMenu").classList.add("hidden"); refresh(); toast("Datos de ejemplo cargados.");
+      };
+      $("btnLoadDemo").addEventListener("click", demo);
+      $("btnDemoEmpty").addEventListener("click", demo);
+      $("btnResetData").addEventListener("click", () => {
+        if (!confirm("Se borrarán TODOS los pilotos, pistas y vueltas de este navegador. ¿Continuar?")) return;
+        db = { drivers: [], tracks: [DEFAULT_TRACK], laps: [] }; save(); $("moreMenu").classList.add("hidden"); refresh(); toast("Datos borrados.");
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => { bind(); refresh(); });
+  })();
   </script>
 </body>
 </html>

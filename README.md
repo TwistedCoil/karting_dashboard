@@ -1,13 +1,13 @@
 # 🏎️ Karting Dashboard
 
-Dashboard local para registrar vueltas de karting entre amigos, comparar ritmos y reírse de los resultados. Es **un solo archivo HTML** (`index.html`): HTML, CSS y JavaScript juntos. Sin servidor, sin base de datos, sin cuentas ni instalación.
+Dashboard local para registrar vueltas de karting entre amigos, comparar ritmos y reírse de los resultados. Es **un solo archivo HTML** (`index.html`): con el diseño racing/F1 original (Tailwind compilado y embebido), HTML y JavaScript juntos. Sin servidor, sin base de datos, sin cuentas ni instalación.
 
 ## Inicio rápido
 
 1. Descarga o clona el repositorio.
 2. Abre `index.html` en un navegador moderno (Chrome, Edge, Firefox, Safari).
-3. Pulsa **Cargar datos de ejemplo** para ver el tablero completo, o agrega pilotos con **+ Piloto** y vueltas con **+ Registrar vuelta**.
-4. Exporta un respaldo con **Exportar JSON** de vez en cuando.
+3. Pulsa **Cargar datos de ejemplo** para ver el tablero completo, o agrega pilotos con **+ Agregar Piloto**, pistas con **+ Pista** y vueltas con **Registrar Vuelta**.
+4. Exporta un respaldo desde **Datos y respaldos** de vez en cuando.
 
 Para compartirlo basta con pasar el archivo; también sirve tal cual en GitHub Pages.
 
@@ -34,24 +34,28 @@ Los pilotos, pistas y vueltas se guardan en el `localStorage` de tu navegador; n
 - **Tendencia en tanda:** pendiente de mínimos cuadrados de los tiempos por vuelta (solo tandas de 4+ vueltas). Negativa = va afinando.
 - **Calentamiento:** promedio de (1ª vuelta − mejor vuelta de la tanda).
 
-**Premios tóxicos:** Verstappen de barrio, Llevando a la abuelita, Coche de bebé, Chicane móvil con patas, Metrónomo robótico, Trompo serial, Calentando motores, En racha, Montaña rusa, Se durmió en la curva, El remontador, Casi casi, Bandera azul, Gastador de nafta (+ top 3) y Socio del circuito.
+**Premios tóxicos (originales):** El Verstappen de barrio, Llevando a la abuelita, Conductor de coche de bebé, Chicane móvil con patas, El Metrónomo robótico y Gastadores de nafta.
 
-**Tendencias del grupo:** promedio vs mediana, dispersión, tiempo total en pista, tendencia del récord por sesión, cuántos mejoraron respecto de la sesión anterior, costo del calentamiento, trompos totales y regularidad media.
+**Premios nuevos:** Rey del trompo, Dormido en la largada, Se durmió en la curva, El remontador, Montaña rusa, Flor tardía, Racha de mejora, Casi-casi, Brecha del pedal y Socio del circuito.
 
-**Gráficos:** tiempos por vuelta (eje invertido) y mejor vuelta por sesión. **Ficha individual** con historial borrable y **Cara a cara** entre dos pilotos (mejor, promedio, vuelta a vuelta emparejando fecha, pista y número).
+**Campeonato:** puntos estilo F1 (25-18-15-12-10-8-6-4-2-1) por cada tanda según la mejor vuelta, con poles, podios y puntos por tanda.
+
+**Tendencias:** El promedio miente (promedio − mediana), Índice de Temblor (CV), Ahora sí (vuelta 1 → 2), Eye of the Tiger (última tanda vs mejor previa), Niño Karate Kid (promedio última vs primera tanda), De aquí te veo Insecto, SugarDaddy paga y Récord del grupo.
+
+**Gráficos:** tiempos por vuelta (eje invertido) y La Curva del Saco (promedio por piloto en cada fecha). **Ficha individual** con historial borrable y **Cara a cara** entre dos pilotos (mejor, promedio, vuelta a vuelta emparejando fecha, pista y número).
 
 > Todas las métricas son recreativas: no miden habilidad ni condición física. Para tendencias confiables registra varias sesiones en la misma pista.
 
 ## Seguridad
 
-- Sin `innerHTML`: todo el contenido dinámico (incluidos nombres importados) se inserta como texto.
+- Todo valor dinámico (incluidos nombres importados) pasa por `escapeHtml` antes de entrar al DOM; sin `onclick` en línea (delegación de eventos).
 - **Content-Security-Policy**: sin conexiones de red (`connect-src 'none'`), sin formularios externos, sin objetos embebidos. Lo único externo es Chart.js 4.5.1 (MIT) desde jsDelivr con **SRI** (hash de integridad); si no carga, los gráficos se ocultan con un aviso y el resto funciona.
 - Validación y normalización de todo dato de entrada, formularios y JSON importado (nombres sin `<`, `>` ni caracteres de control; nombres de prototipo rechazados; IDs saneados).
 - Sin cookies, sin telemetría, `referrer` desactivado.
 
 ## Estructura
 
-Todo está en `index.html`, en este orden: estilos, HTML, y un `<script>` con tres secciones (estadísticas puras, validación/datos de ejemplo, interfaz). Los nombres de los datos de ejemplo son personajes ficticios: Pierre Nodoyuna, Tiroloco McGrau, Agente Cobra, Porko Rosso y Pedro Picapiedra.
+Todo está en `index.html`: CSS de Tailwind v3.4.17 compilado en línea (funciona sin conexión; solo las fuentes de Google y Chart.js vienen de CDN), el HTML del tablero y un `<script>` con la lógica. Los datos de ejemplo usan personajes ficticios: Pierre Nodoyuna, Tiroloco McGrau, Agente Cobra, Porko Rosso y Pedro Picapiedra.
 
 ## Licencia
 
