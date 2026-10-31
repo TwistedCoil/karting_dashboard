@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark">
+  <title>Karting Dashboard · Telemetría y tabla tóxica entre amigos</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">🏎️</span>
+      <div>
+        <div class="flag"><span class="dot"></span> BANDERA VERDE · datos solo en tu navegador</div>
+        <h1>KARTING <span class="grad">DASHBOARD</span></h1>
+      </div>
+    </div>
+    <nav class="actions" aria-label="Acciones">
+      <button id="btnAddLap" class="btn primary" type="button">+ Registrar vuelta</button>
+      <button id="btnAddDriver" class="btn" type="button">+ Piloto</button>
+      <button id="btnAddTrack" class="btn" type="button">+ Pista</button>
+      <button id="btnExport" class="btn" type="button">Exportar JSON</button>
+      <label class="btn" for="importFile">Importar JSON</label>
+      <input id="importFile" type="file" accept=".json,application/json" hidden>
+    </nav>
+  </header>
+
+  <main>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <section class="panel filters" aria-label="Filtros">
+      <label>Pista
+        <select id="trackFilter"></select>
+      </label>
+      <label>Sesión
+        <select id="dateFilter"></select>
+      </label>
+      <div class="seg" role="group" aria-label="Ámbito">
+        <button type="button" data-scope="daily" class="active">Tanda del día</button>
+        <button type="button" data-scope="historic">Histórico</button>
+      </div>
+      <label>Ordenar por
+        <select id="sortFilter">
+          <option value="best">🟣 Mejor vuelta</option>
+          <option value="avg">🎯 Promedio</option>
+          <option value="clean">🧼 Promedio limpio (≤107%)</option>
+          <option value="consistency">🤖 Regularidad</option>
+        </select>
+      </label>
+      <p id="trackNote" class="note" hidden>⚠️ Estás mezclando pistas distintas: los tiempos no son comparables entre circuitos.</p>
+    </section>
+
+    <section id="emptyState" class="panel empty" hidden>
+      <h2>Aún no hay vueltas</h2>
+      <p>Agrega pilotos y registra vueltas, o carga datos de ejemplo para ver todo el tablero en acción.</p>
+      <button id="btnDemo" class="btn primary" type="button">Cargar datos de ejemplo</button>
+    </section>
+
+    <div id="dashboard">
+      <section class="kpis" aria-label="Resumen">
+        <article class="kpi"><h3>Vuelta más rápida</h3><div id="kpiPole" class="big purple">--.---</div><p id="kpiPoleWho">--</p></article>
+        <article class="kpi"><h3>Promedio limpio</h3><div id="kpiClean" class="big">--.---</div><p>Vueltas ≤ 107% de la mejor de cada piloto</p></article>
+        <article class="kpi"><h3>Pole vs último</h3><div id="kpiSpread" class="big">+0.000s</div><p id="kpiSpreadWho">--</p></article>
+        <article class="kpi"><h3>Grupo</h3><div id="kpiGroup" class="big">0</div><p id="kpiGroupDetail">pilotos · vueltas</p></article>
+      </section>
+
+      <section class="panel" aria-labelledby="hGrid">
+        <h2 id="hGrid">Parrilla de tiempos</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Pos</th><th>Piloto</th><th class="r">Mejor</th><th class="r">Promedio</th><th class="r">Mediana</th>
+              <th class="r">Limpio</th><th class="r">± Desv.</th><th class="r">Gap pole</th><th class="r">Intervalo</th><th class="r">Vueltas</th><th>Ritmo</th>
+            </tr></thead>
+            <tbody id="gridBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="hTrophies">
+        <h2 id="hTrophies" class="section-title">🏆 Premios tóxicos</h2>
+        <p class="sub">Récords absurdos, aspirantes a Verstappen y los que deberían andar en triciclo. Todo es recreativo.</p>
+        <div id="trophies" class="cards"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="hFun">
+        <h2 id="hFun">📈 Tendencias y promedios del grupo</h2>
+        <div id="groupStats" class="stat-grid"></div>
+      </section>
+
+      <section class="two-col">
+        <article class="panel">
+          <h2>Telemetría por vuelta</h2>
+          <p class="sub">Más abajo = más rápido.</p>
+          <div class="chart-box"><canvas id="lapChart" aria-label="Gráfico de tiempos por vuelta" role="img"></canvas></div>
+          <p id="chartFallback" class="note" hidden>No se pudo cargar Chart.js; el resto del tablero funciona igual.</p>
+        </article>
+        <article class="panel">
+          <h2>Mejor vuelta por sesión</h2>
+          <p class="sub">Evolución del ritmo de cada piloto entre fechas.</p>
+          <div class="chart-box"><canvas id="sessionChart" aria-label="Mejor vuelta por sesión" role="img"></canvas></div>
+        </article>
+      </section>
+
+      <section class="panel" aria-labelledby="hDriver">
+        <div class="row-head">
+          <h2 id="hDriver">Ficha individual</h2>
+          <label>Piloto <select id="driverSelect"></select></label>
+          <button id="btnDeleteDriver" class="btn danger small" type="button">Eliminar piloto</button>
+        </div>
+        <div id="driverCards" class="stat-grid"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Fecha</th><th>Pista</th><th class="r">Vuelta</th><th class="r">Tiempo</th><th class="r">Δ vs PB</th><th></th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="hH2H">
+        <div class="row-head">
+          <h2 id="hH2H">⚔️ Cara a cara</h2>
+          <label>Piloto A <select id="h2hA"></select></label>
+          <label>Piloto B <select id="h2hB"></select></label>
+        </div>
+        <div id="h2hResult" class="stat-grid"></div>
+      </section>
+    </div>
+
+    <section class="panel danger-zone">
+      <h2>Datos</h2>
+      <p class="sub">Todo vive en el <code>localStorage</code> de este navegador. Exporta respaldos periódicamente.</p>
+      <button id="btnDemo2" class="btn" type="button">Cargar datos de ejemplo</button>
+      <button id="btnReset" class="btn danger" type="button">Borrar todos los datos</button>
+    </section>
+  </main>
+
+  <footer>Karting Dashboard · MIT · Las estadísticas son recreativas, no medidas oficiales de rendimiento.</footer>
+
+  <dialog id="lapDialog">
+    <form method="dialog" id="lapForm" novalidate>
+      <h2>Registrar vuelta</h2>
+      <label>Piloto <select id="lapDriver" required></select></label>
+      <label>Pista <select id="lapTrack" required></select></label>
+      <label>Fecha <input id="lapDate" type="date" required min="2000-01-01" max="2100-12-31"></label>
+      <label>Nº de vuelta <input id="lapNumber" type="number" min="1" max="999" step="1" required></label>
+      <label>Tiempo <input id="lapTime" type="text" inputmode="decimal" placeholder="43.520 o 1:02.150" autocomplete="off" required></label>
+      <p class="hint">Entre 10 s y 10 min. Acepta 43.520, 43,520 o 1:02.150.</p>
+      <p id="lapError" class="error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn" data-close>Cancelar</button>
+        <button type="submit" class="btn primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="driverDialog">
+    <form method="dialog" id="driverForm" novalidate>
+      <h2>Nuevo piloto</h2>
+      <label>Nombre o apodo <input id="driverName" type="text" maxlength="40" autocomplete="off" required></label>
+      <p id="driverError" class="error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn" data-close>Cancelar</button>
+        <button type="submit" class="btn primary">Agregar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="trackDialog">
+    <form method="dialog" id="trackForm" novalidate>
+      <h2>Nueva pista</h2>
+      <label>Nombre o lugar <input id="trackName" type="text" maxlength="40" autocomplete="off" required></label>
+      <p id="trackError" class="error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn" data-close>Cancelar</button>
+        <button type="submit" class="btn primary">Agregar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
