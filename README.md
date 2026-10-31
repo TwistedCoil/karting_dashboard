@@ -1,6 +1,6 @@
 # 🏎️ Karting Dashboard
 
-Dashboard local para registrar vueltas de karting entre amigos, comparar ritmos y reírse de los resultados. Es un sitio estático: **sin servidor, sin base de datos, sin cuentas y sin dependencias externas en tiempo de ejecución**.
+Dashboard local para registrar vueltas de karting entre amigos, comparar ritmos y reírse de los resultados. Es **un solo archivo HTML** (`index.html`): HTML, CSS y JavaScript juntos. Sin servidor, sin base de datos, sin cuentas ni instalación.
 
 ## Inicio rápido
 
@@ -9,7 +9,7 @@ Dashboard local para registrar vueltas de karting entre amigos, comparar ritmos 
 3. Pulsa **Cargar datos de ejemplo** para ver el tablero completo, o agrega pilotos con **+ Piloto** y vueltas con **+ Registrar vuelta**.
 4. Exporta un respaldo con **Exportar JSON** de vez en cuando.
 
-Para publicarlo (GitHub Pages, Netlify, etc.) basta con servir esta carpeta tal cual.
+Para compartirlo basta con pasar el archivo; también sirve tal cual en GitHub Pages.
 
 ## Datos
 
@@ -45,28 +45,14 @@ Los pilotos, pistas y vueltas se guardan en el `localStorage` de tu navegador; n
 ## Seguridad
 
 - Sin `innerHTML`: todo el contenido dinámico (incluidos nombres importados) se inserta como texto.
-- **Content-Security-Policy** estricta: solo scripts y estilos del propio origen, sin conexiones de red, sin fuentes ni CDN. Chart.js 4.5.1 (MIT) va incluido en `vendor/`.
+- **Content-Security-Policy**: sin conexiones de red (`connect-src 'none'`), sin formularios externos, sin objetos embebidos. Lo único externo es Chart.js 4.5.1 (MIT) desde jsDelivr con **SRI** (hash de integridad); si no carga, los gráficos se ocultan con un aviso y el resto funciona.
 - Validación y normalización de todo dato de entrada, formularios y JSON importado (nombres sin `<`, `>` ni caracteres de control; nombres de prototipo rechazados; IDs saneados).
 - Sin cookies, sin telemetría, `referrer` desactivado.
 
-## Tests
-
-Abre `test/index.html` en el navegador (sin dependencias) o, si tienes Node: `node test/tests.js`.
-
 ## Estructura
 
-```
-index.html        interfaz
-css/styles.css    estilos
-js/stats.js       estadísticas puras
-js/store.js       validación, límites y datos de ejemplo
-js/app.js         interfaz y eventos
-vendor/           Chart.js (MIT)
-test/             pruebas
-```
-
-Los datos de ejemplo usan nombres de personajes ficticios: Pierre Nodoyuna, Tiroloco McGrau, Agente Cobra, Porko Rosso y Pedro Picapiedra.
+Todo está en `index.html`, en este orden: estilos, HTML, y un `<script>` con tres secciones (estadísticas puras, validación/datos de ejemplo, interfaz). Los nombres de los datos de ejemplo son personajes ficticios: Pierre Nodoyuna, Tiroloco McGrau, Agente Cobra, Porko Rosso y Pedro Picapiedra.
 
 ## Licencia
 
-[MIT](LICENSE). Chart.js conserva su propia licencia MIT en `vendor/LICENSE-chartjs.md`.
+[MIT](LICENSE). Chart.js es MIT (© Chart.js Contributors).
