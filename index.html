@@ -619,6 +619,14 @@
 
       <form id="formLap" class="space-y-4 text-sm">
         <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de registro</label>
+          <select id="lapMode" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:ring-2 focus:ring-racing-red focus:outline-none">
+            <option value="lap">Vuelta individual</option>
+            <option value="summary">Resumen de tanda (total, vueltas y mejor vuelta)</option>
+          </select>
+        </div>
+
+        <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Piloto</label>
           <select id="lapDriverSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:ring-2 focus:ring-racing-red focus:outline-none">
             <!-- Populated by JS -->
@@ -631,7 +639,7 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-          <div>
+          <div id="lapNumberWrap">
             <label class="block text-xs font-semibold text-slate-300 mb-1">Nº de Vuelta</label>
             <input type="number" id="lapNumberInput" min="1" max="999" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:ring-2 focus:ring-racing-red focus:outline-none" required>
           </div>
@@ -642,13 +650,31 @@
           </div>
         </div>
 
-        <div>
+        <div id="lapSingleWrap">
           <label class="block text-xs font-semibold text-slate-300 mb-1">Tiempo de Vuelta (Ej: 43.520 o 1:02.310)</label>
           <div class="relative">
             <input type="text" id="lapTimeInput" placeholder="43.520 o 0:43.520" class="w-full bg-slate-950 border-2 border-racing-red/60 rounded-xl px-4 py-3 text-2xl font-black font-f1 text-racing-yellow tracking-wider focus:ring-2 focus:ring-racing-red focus:outline-none" required>
             <span class="absolute right-3 top-3.5 text-xs font-mono text-slate-500">SS.sss</span>
           </div>
           <p class="text-[11px] text-slate-400 mt-1">Acepta 43.520, 43,520 o 1:02.150 (entre 10 s y 10 min).</p>
+        </div>
+
+        <div id="lapSummaryWrap" class="hidden space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Tiempo total</label>
+              <input type="text" id="summaryTotalInput" placeholder="6:16.000 o 1:02:10" autocomplete="off" class="w-full bg-slate-950 border-2 border-racing-red/60 rounded-xl px-3 py-2 text-lg font-black font-f1 text-racing-yellow focus:ring-2 focus:ring-racing-red focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Nº de vueltas</label>
+              <input type="number" id="summaryLapsInput" min="1" max="999" class="w-full bg-slate-950 border-2 border-racing-red/60 rounded-xl px-3 py-2 text-lg font-black font-f1 text-racing-yellow focus:ring-2 focus:ring-racing-red focus:outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Mejor vuelta</label>
+            <input type="text" id="summaryBestInput" placeholder="43.520 o 1:02.310" autocomplete="off" class="w-full bg-slate-950 border-2 border-racing-red/60 rounded-xl px-3 py-2 text-lg font-black font-f1 text-racing-yellow focus:ring-2 focus:ring-racing-red focus:outline-none">
+          </div>
+          <p class="text-[11px] text-slate-400">Con esto se calculan mejor tiempo, promedio y km/h. Regularidad y trompos necesitan vueltas individuales.</p>
         </div>
 
         <p id="lapError" role="alert" class="hidden text-xs text-rose-400"></p>
@@ -741,7 +767,7 @@
     const LEGACY_DRIVERS = "apex_karting_drivers_v1";
     const DEFAULT_TRACK = "Circuito GP Indoor";
     const ALL = "__all__";
-    const LIM = { drivers: 60, tracks: 30, laps: 20000, name: 40, minS: 10, maxS: 600, maxLap: 999, minM: 50, maxM: 5000, importBytes: 5 * 1024 * 1024 };
+    const LIM = { drivers: 60, tracks: 30, laps: 20000, name: 40, minS: 10, maxS: 600, maxLap: 999, sums: 2000, minM: 50, maxM: 5000, importBytes: 5 * 1024 * 1024 };
     const POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
     const CLEAN = 1.07, SPIN = 1.10;
     const $ = (id) => document.getElementById(id);
@@ -805,6 +831,23 @@
     }
     const parseMeters = (v) => { const n = Number(String(v).trim().replace(",", ".")); return String(v).trim() !== "" && isFinite(n) && n >= LIM.minM && n <= LIM.maxM ? Math.round(n) : null; };
     const metersOf = (t) => (Object.prototype.hasOwnProperty.call(db.trackMeters, t) ? db.trackMeters[t] : 0);
+    function parseTotal(input) {
+      const t = String(input).trim().replace(",", ".");
+      let sec = null;
+      if (/^\d{1,5}(\.\d{1,3})?$/.test(t)) sec = parseFloat(t);
+      else {
+        const p = t.split(":");
+        if ((p.length === 2 || p.length === 3) && /^\d{1,2}$/.test(p[0]) && p.slice(1, -1).every((x) => /^[0-5]?\d$/.test(x)) && /^[0-5]?\d(\.\d{1,3})?$/.test(p[p.length - 1]))
+          sec = p.length === 2 ? +p[0] * 60 + parseFloat(p[1]) : +p[0] * 3600 + +p[1] * 60 + parseFloat(p[2]);
+      }
+      return sec !== null && isFinite(sec) && sec >= LIM.minS && sec <= LIM.maxS * LIM.maxLap ? sec : null;
+    }
+    function formatTotal(sec) {
+      if (sec < 3600) return formatLapTime(sec);
+      const h = Math.floor(sec / 3600), r = sec - h * 3600, m = Math.floor(r / 60), x = (r % 60).toFixed(3);
+      return h + ":" + String(m).padStart(2, "0") + ":" + (parseFloat(x) < 10 ? "0" : "") + x;
+    }
+    const lapTag = (n) => (n ? "Vuelta #" + n : "mejor de resumen");
     const kmh = (meters, sec) => (meters && sec > 0 ? (meters / sec) * 3.6 : null);
     const fmtKmh = (v) => (v === null || v === undefined ? "--" : v.toFixed(1) + " km/h");
     function speedJoke(v) {
@@ -840,8 +883,24 @@
         rec.id = typeof l.id === "string" && /^[\w-]{1,40}$/.test(l.id) ? l.id : newId();
         drivers.add(driver); tracks.add(track); laps.push(rec);
       });
+      const summaries = [], sseen = new Set();
+      (Array.isArray(raw.summaries) ? raw.summaries : []).slice(0, LIM.sums).forEach((x) => {
+        if (!x || typeof x !== "object") { discarded++; return; }
+        const driver = cleanName(x.driver), track = cleanName(x.track === undefined ? DEFAULT_TRACK : x.track);
+        const n = Number(x.laps), total = Number(x.total), best = Number(x.best);
+        if (!driver || !track || !isValidDate(x.date) || !Number.isInteger(n) || n < 1 || n > LIM.maxLap || !isFinite(best) || best < LIM.minS || best > LIM.maxS ||
+            !isFinite(total) || total + 0.01 < best * n || total > LIM.maxS * n) { discarded++; return; }
+        if (!drivers.has(driver) && drivers.size >= LIM.drivers) { discarded++; return; }
+        if (!tracks.has(track) && tracks.size >= LIM.tracks) { discarded++; return; }
+        const rec = { id: "", date: x.date, driver, track, laps: n, total: Math.round(total * 1000) / 1000, best: Math.round(best * 1000) / 1000 };
+        const k = [driver, track, rec.date, n, rec.total].join("|");
+        if (sseen.has(k)) { discarded++; return; }
+        sseen.add(k);
+        rec.id = typeof x.id === "string" && /^[\w-]{1,40}$/.test(x.id) ? x.id : newId();
+        drivers.add(driver); tracks.add(track); summaries.push(rec);
+      });
       tracks.forEach((t) => { const m = Object.prototype.hasOwnProperty.call(rm, t) ? parseMeters(rm[t]) : null; if (m !== null) trackMeters[t] = m; });
-      return { drivers: [...drivers], tracks: [...tracks], laps, trackMeters, discarded };
+      return { drivers: [...drivers], tracks: [...tracks], laps, summaries, trackMeters, discarded };
     }
     function load() {
       try {
@@ -850,10 +909,10 @@
         const l = localStorage.getItem(LEGACY_LAPS), d = localStorage.getItem(LEGACY_DRIVERS);
         if (l) return validateDatabase({ laps: JSON.parse(l), drivers: d ? JSON.parse(d) : [] });
       } catch (e) { /* datos corruptos: se parte vacío */ }
-      return { drivers: [], tracks: [DEFAULT_TRACK], laps: [], trackMeters: {} };
+      return { drivers: [], tracks: [DEFAULT_TRACK], laps: [], summaries: [], trackMeters: {} };
     }
     function save() {
-      try { localStorage.setItem(KEY, JSON.stringify({ drivers: db.drivers, tracks: db.tracks, laps: db.laps, trackMeters: db.trackMeters })); }
+      try { localStorage.setItem(KEY, JSON.stringify({ drivers: db.drivers, tracks: db.tracks, laps: db.laps, summaries: db.summaries, trackMeters: db.trackMeters })); }
       catch (e) { toast("No se pudo guardar en este navegador."); }
     }
     function demoDatabase() {
@@ -865,7 +924,8 @@
       const laps = [];
       sessions.forEach(([date, by]) => Object.entries(by).forEach(([driver, ts]) =>
         ts.forEach((seconds, i) => laps.push({ date, driver, lap: i + 1, seconds, track: DEFAULT_TRACK }))));
-      return validateDatabase({ drivers: [...new Set(laps.map((l) => l.driver))], tracks: [DEFAULT_TRACK], laps, trackMeters: { [DEFAULT_TRACK]: 650 } });
+      const summaries = [{ date: "2026-10-30", driver: "Chuck Norrisito", track: DEFAULT_TRACK, laps: 8, total: 376, best: 44.9 }];
+      return validateDatabase({ drivers: [...new Set([...laps.map((l) => l.driver), "Chuck Norrisito"])], summaries, tracks: [DEFAULT_TRACK], laps, trackMeters: { [DEFAULT_TRACK]: 650 } });
     }
 
     let db = load();
@@ -875,16 +935,23 @@
     // ---------- Estadísticas ----------
     const byDriver = (laps) => { const m = new Map(); laps.forEach((l) => { if (!m.has(l.driver)) m.set(l.driver, []); m.get(l.driver).push(l); }); return m; };
     const byDate = (laps) => { const m = new Map(); laps.forEach((l) => { if (!m.has(l.date)) m.set(l.date, []); m.get(l.date).push(l); }); return new Map([...m].sort((x, y) => x[0] < y[0] ? -1 : 1)); };
-    function summarize(driver, ls) {
-      const sec = ls.map((l) => l.seconds), best = Math.min(...sec);
-      const bl = ls.find((l) => l.seconds === best);
+    function summarize(driver, ls, ss = []) {
+      const sec = ls.map((l) => l.seconds), best = Math.min(...sec, ...ss.map((x) => x.best));
+      const bl = ls.find((l) => l.seconds === best), src = bl || ss.find((x) => x.best === best);
+      const n = ls.length + ss.reduce((a, x) => a + x.laps, 0), real = sec.length;
+      const avg = (sec.reduce((a, x) => a + x, 0) + ss.reduce((a, x) => a + x.total, 0)) / n;
       const clean = sec.filter((s) => s <= best * CLEAN);
       return {
-        driver, n: ls.length, best, bestLap: bl.lap, bestDate: bl.date, avg: mean(sec), median: median(sec),
-        clean: mean(clean), sd: stdDev(clean), cv: mean(sec) ? stdDev(sec) / mean(sec) : 0,
-        spins: sec.filter((s) => s > best * SPIN).length, worst: Math.max(...sec),
-        worstLap: ls.find((l) => l.seconds === Math.max(...sec)),
+        driver, n, real, best, bestLap: bl ? bl.lap : null, bestDate: src.date, bestTrack: src.track, avg,
+        median: real ? median(sec) : avg, clean: clean.length ? mean(clean) : avg, sd: real ? stdDev(clean) : null,
+        cv: real && mean(sec) ? stdDev(sec) / mean(sec) : 0, spins: sec.filter((s) => s > best * SPIN).length,
+        worst: real ? Math.max(...sec) : null, worstLap: real ? ls.find((l) => l.seconds === Math.max(...sec)) : null,
       };
+    }
+    const forDriver = (arr, d) => arr.filter((x) => x.driver === d);
+    function driverRows(laps, sums) {
+      const m = byDriver(laps), names = new Set([...m.keys(), ...sums.map((x) => x.driver)]);
+      return [...names].map((d) => summarize(d, m.get(d) || [], forDriver(sums, d)));
     }
     // Estadísticas que necesitan la historia (por tanda) del piloto en una pista
     function history(ls) {
@@ -913,19 +980,22 @@
 
     // Velocidad por vuelta usando los metros de su pista (null si la pista no tiene metros)
     const lapKmh = (l) => kmh(metersOf(l.track), l.seconds);
-    function speedStats(ls) {
-      const withM = ls.filter((l) => metersOf(l.track));
-      if (!withM.length) return null;
-      const meters = withM.reduce((a, l) => a + metersOf(l.track), 0), secs = withM.reduce((a, l) => a + l.seconds, 0);
-      return { top: Math.max(...withM.map(lapKmh)), avg: kmh(meters, secs), km: meters / 1000 };
+    function speedStats(ls, ss = []) {
+      const withM = ls.filter((l) => metersOf(l.track)), sm = ss.filter((x) => metersOf(x.track));
+      if (!withM.length && !sm.length) return null;
+      const meters = withM.reduce((a, l) => a + metersOf(l.track), 0) + sm.reduce((a, x) => a + x.laps * metersOf(x.track), 0);
+      const secs = withM.reduce((a, l) => a + l.seconds, 0) + sm.reduce((a, x) => a + x.total, 0);
+      return { top: Math.max(...withM.map(lapKmh), ...sm.map((x) => kmh(metersOf(x.track), x.best))), avg: kmh(meters, secs), km: meters / 1000 };
     }
 
     // ---------- Selección ----------
     const trackLaps = () => db.laps.filter((l) => ui.track === ALL || l.track === ui.track);
+    const trackSums = () => db.summaries.filter((x) => ui.track === ALL || x.track === ui.track);
+    const scopedSums = () => trackSums().filter((x) => ui.scope === "hist" || x.date === ui.date);
     const scoped = () => trackLaps().filter((l) => ui.scope === "hist" || l.date === ui.date);
-    function standings(laps) {
-      const rows = [...byDriver(laps)].map(([d, ls]) => summarize(d, ls));
-      const f = { best: (a, b) => a.best - b.best, avg: (a, b) => a.avg - b.avg, clean: (a, b) => a.clean - b.clean, consistency: (a, b) => a.sd - b.sd }[ui.sort];
+    function standings(laps, sums) {
+      const rows = driverRows(laps, sums), sd = (r) => (r.sd === null ? 1e9 : r.sd);
+      const f = { best: (a, b) => a.best - b.best, avg: (a, b) => a.avg - b.avg, clean: (a, b) => a.clean - b.clean, consistency: (a, b) => sd(a) - sd(b) }[ui.sort];
       return rows.sort(f);
     }
 
@@ -936,7 +1006,7 @@
       if (items.includes(value)) sel.value = value;
     }
     function refresh() {
-      const dates = [...new Set(trackLaps().map((l) => l.date))].sort().reverse();
+      const dates = [...new Set([...trackLaps(), ...trackSums()].map((l) => l.date))].sort().reverse();
       if (!dates.includes(ui.date)) ui.date = dates[0] || localDate();
       setOptions($("trackFilter"), [ALL, ...db.tracks], ui.track, (t) => t === ALL ? "Todas (mezcla)" : t);
       setOptions($("dateFilter"), dates.length ? dates : [ui.date], ui.date);
@@ -946,8 +1016,8 @@
       const mt = metersOf(ui.track);
       $("trackMetersNote").textContent = ui.track !== ALL && mt ? "Largo de pista: " + mt + " m" : "";
       $("trackMetersNote").classList.toggle("hidden", !(ui.track !== ALL && mt));
-      $("totalLapsToday").textContent = sc.length + " vueltas cronometradas";
-      const empty = db.laps.length === 0;
+      $("totalLapsToday").textContent = (sc.length + scopedSums().reduce((a, x) => a + x.laps, 0)) + " vueltas cronometradas";
+      const empty = db.laps.length === 0 && db.summaries.length === 0;
       $("emptyState").classList.toggle("hidden", !empty);
       $("dashboardBody").classList.toggle("hidden", empty);
       updateDropdowns();
@@ -976,23 +1046,24 @@
     }
 
     function renderPodium(sc) {
-      if (!sc.length) {
+      const ss = scopedSums();
+      if (!sc.length && !ss.length) {
         $("poleDriver").textContent = "Sin Giros"; $("poleTime").textContent = "--.---"; $("poleLapNumber").textContent = "Vuelta #--"; $("poleDeltaLeader").textContent = "SECTOR PÚRPURA";
         $("paceDriver").textContent = "Sin datos"; $("paceTime").textContent = "--.---"; $("paceLapCount").textContent = "-- vueltas";
         $("gapDifference").textContent = "+0.000s"; $("totalPilotsInGrid").textContent = "0"; $("slowestDriverGap").textContent = "Cierre de grilla: --";
         return;
       }
-      const rows = [...byDriver(sc)].map(([d, ls]) => summarize(d, ls));
+      const rows = driverRows(sc, ss);
       const pole = rows.slice().sort((a, b) => a.best - b.best);
       $("poleDriver").textContent = pole[0].driver;
       $("poleTime").textContent = formatLapTime(pole[0].best);
-      $("poleLapNumber").textContent = "Vuelta #" + pole[0].bestLap;
-      const poleSpeed = lapKmh({ track: sc.find((l) => l.driver === pole[0].driver && l.seconds === pole[0].best).track, seconds: pole[0].best });
+      $("poleLapNumber").textContent = lapTag(pole[0].bestLap);
+      const poleSpeed = lapKmh({ track: pole[0].bestTrack, seconds: pole[0].best });
       $("poleDeltaLeader").textContent = poleSpeed === null ? "SECTOR PÚRPURA" : fmtKmh(poleSpeed) + " · PÚRPURA";
       const pace = rows.filter((r) => r.n >= 2).sort((a, b) => a.avg - b.avg)[0] || rows.slice().sort((a, b) => a.avg - b.avg)[0];
       $("paceDriver").textContent = pace.driver;
       $("paceTime").textContent = formatLapTime(pace.avg);
-      const paceSpeed = speedStats(sc.filter((l) => l.driver === pace.driver));
+      const paceSpeed = speedStats(forDriver(sc, pace.driver), forDriver(ss, pace.driver));
       $("paceLapCount").textContent = pace.n + " vueltas" + (paceSpeed ? " · " + fmtKmh(paceSpeed.avg) : "");
       const last = pole[pole.length - 1];
       $("totalPilotsInGrid").textContent = String(rows.length);
@@ -1001,11 +1072,11 @@
     }
 
     function renderTable(sc) {
-      const body = $("timingTableBody");
+      const body = $("timingTableBody"), ss = scopedSums();
       body.replaceChildren();
-      $("tableEmptyState").classList.toggle("hidden", sc.length > 0);
-      if (!sc.length) return;
-      const rows = standings(sc), poleT = Math.min(...rows.map((r) => r.best));
+      $("tableEmptyState").classList.toggle("hidden", sc.length + ss.length > 0);
+      if (!sc.length && !ss.length) return;
+      const rows = standings(sc, ss), poleT = Math.min(...rows.map((r) => r.best));
       const badge = [
         '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-950 text-purple-300 font-bold border border-purple-500/50 text-xs">P1</span>',
         '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-800 text-slate-200 font-bold border border-slate-600 text-xs">P2</span>',
@@ -1027,7 +1098,7 @@
           <td class="px-4 py-3 text-center text-slate-400 font-mono text-xs">V.${r.bestLap}</td>
           <td class="px-4 py-3 text-right font-mono text-slate-300 font-medium">${formatLapTime(r.avg)}</td>
           <td class="px-4 py-3 text-right font-mono text-slate-300">${formatLapTime(r.clean)}</td>
-          <td class="px-4 py-3 text-right font-mono text-slate-400">±${r.sd.toFixed(3)}</td>
+          <td class="px-4 py-3 text-right font-mono text-slate-400">${r.sd === null ? "--" : "±" + r.sd.toFixed(3)}</td>
           <td class="px-4 py-3 text-right">${delta === 0 ? '<span class="text-purple-400 font-bold font-f1">LÍDER</span>' : '<span class="text-slate-400 font-mono">+' + delta.toFixed(3) + "s</span>"}</td>
           <td class="px-4 py-3 text-right font-mono text-slate-500 text-xs">${i ? "+" + interval.toFixed(3) + "s" : "--"}</td>
           <td class="px-4 py-3 text-center font-mono text-slate-400 text-xs">${r.n} giros</td>
@@ -1037,17 +1108,19 @@
     }
 
     function renderTrophies() {
-      const tl = trackLaps(), set = (id, t) => { $(id).textContent = t; };
-      if (!tl.length) return;
-      const fast = tl.reduce((a, b) => (b.seconds < a.seconds ? b : a)), slow = tl.reduce((a, b) => (b.seconds > a.seconds ? b : a));
-      set("trophyVerstappenPlayer", fast.driver); set("trophyVerstappenLap", fast.date + " (Vuelta #" + fast.lap + ")" + (lapKmh(fast) ? " · " + fmtKmh(lapKmh(fast)) : "")); set("trophyVerstappenTime", formatLapTime(fast.seconds));
-      set("trophyAbuelitaPlayer", slow.driver); set("trophyAbuelitaLap", slow.date + " (Vuelta #" + slow.lap + ")" + (lapKmh(slow) ? " · " + fmtKmh(lapKmh(slow)) : "")); set("trophyAbuelitaTime", formatLapTime(slow.seconds));
-      const rows = [...byDriver(tl)].map(([d, ls]) => summarize(d, ls));
+      const tl = trackLaps(), ts = trackSums(), set = (id, t) => { $(id).textContent = t; };
+      if (!tl.length && !ts.length) return;
+      const cand = [...tl, ...ts.map((x) => ({ driver: x.driver, date: x.date, lap: null, seconds: x.best, track: x.track }))];
+      const fast = cand.reduce((a, b) => (b.seconds < a.seconds ? b : a)), slow = tl.length ? tl.reduce((a, b) => (b.seconds > a.seconds ? b : a)) : null;
+      set("trophyVerstappenPlayer", fast.driver); set("trophyVerstappenLap", fast.date + " (" + lapTag(fast.lap) + ")" + (lapKmh(fast) ? " · " + fmtKmh(lapKmh(fast)) : "")); set("trophyVerstappenTime", formatLapTime(fast.seconds));
+      if (slow) { set("trophyAbuelitaPlayer", slow.driver); set("trophyAbuelitaLap", slow.date + " (Vuelta #" + slow.lap + ")" + (lapKmh(slow) ? " · " + fmtKmh(lapKmh(slow)) : "")); set("trophyAbuelitaTime", formatLapTime(slow.seconds)); }
+      else { set("trophyAbuelitaPlayer", "--"); set("trophyAbuelitaLap", "Sin vueltas individuales"); set("trophyAbuelitaTime", "--.---"); }
+      const rows = driverRows(tl, ts);
       const bebe = rows.slice().sort((a, b) => b.avg - a.avg)[0];
       set("trophyBebePlayer", bebe.driver); set("trophyBebeCount", bebe.n + " giros registrados"); set("trophyBebeAvg", formatLapTime(bebe.avg));
-      const spread = rows.filter((r) => r.n >= 2).sort((a, b) => (b.worst - b.best) - (a.worst - a.best))[0];
+      const spread = rows.filter((r) => r.real >= 2).sort((a, b) => (b.worst - b.best) - (a.worst - a.best))[0];
       if (spread) { set("trophyChicanePlayer", spread.driver); set("trophyChicaneDetail", formatLapTime(spread.best) + " vs " + formatLapTime(spread.worst)); set("trophyChicaneDelta", "+" + (spread.worst - spread.best).toFixed(3) + "s"); }
-      const reg = rows.filter((r) => r.n >= 3).sort((a, b) => a.sd - b.sd)[0];
+      const reg = rows.filter((r) => r.real >= 3).sort((a, b) => a.sd - b.sd)[0];
       if (reg) { set("trophyMetronomoPlayer", reg.driver); set("trophyMetronomoDetail", "Desviación en vueltas limpias (≥3 giros)"); set("trophyMetronomoDiff", "±" + reg.sd.toFixed(3) + "s"); }
       const gas = $("trophyGasList");
       gas.replaceChildren();
@@ -1072,7 +1145,7 @@
     }
     function perDriver() {
       const out = [];
-      byDriver(trackLaps()).forEach((ls, d) => out.push({ d, s: summarize(d, ls), h: history(ls) }));
+      byDriver(trackLaps()).forEach((ls, d) => out.push({ d, s: summarize(d, ls, forDriver(trackSums(), d)), h: history(ls) }));
       return out;
     }
     const pick = (arr, f, dir = 1) => arr.filter((x) => f(x) !== null && f(x) !== undefined).sort((a, b) => dir * (f(b) - f(a)))[0];
@@ -1101,7 +1174,7 @@
       }
       const pedal = pick(P, (x) => x.s.avg - x.s.best); if (pedal && P.length > 1)
         add(card("🦶", "BRECHA DEL PEDAL", pedal.d, "+" + (pedal.s.avg - pedal.s.best).toFixed(2) + "s", "Distancia entre su promedio y su mejor vuelta.", "Sabe ir rápido. Lo hizo una vez. Como casualidad."));
-      const PS = P.map((x) => ({ ...x, sp: speedStats(byDriver(trackLaps()).get(x.d)) })).filter((x) => x.sp);
+      const PS = P.map((x) => ({ ...x, sp: speedStats(byDriver(trackLaps()).get(x.d), forDriver(trackSums(), x.d)) })).filter((x) => x.sp);
       const topS = pick(PS, (x) => x.sp.top); if (topS)
         add(card("🚄", "VELOCIDAD PUNTA", topS.d, fmtKmh(topS.sp.top), "Su vuelta más rápida convertida a km/h.", speedJoke(topS.sp.top)));
       const slowS = PS.length > 1 ? pick(PS, (x) => x.sp.avg, -1) : null; if (slowS)
@@ -1115,7 +1188,8 @@
 
     function championship() {
       const pts = new Map();
-      byDate(trackLaps()).forEach((arr) => {
+      const all = [...trackLaps(), ...trackSums().map((x) => ({ date: x.date, driver: x.driver, seconds: x.best }))];
+      byDate(all).forEach((arr) => {
         const rows = [...byDriver(arr)].map(([d, ls]) => ({ d, best: Math.min(...ls.map((l) => l.seconds)) })).sort((a, b) => a.best - b.best);
         rows.forEach((r, i) => {
           const e = pts.get(r.d) || { d: r.d, pts: 0, poles: 0, podiums: 0, sessions: 0 };
@@ -1143,11 +1217,11 @@
     function renderTrends() {
       const sc = scoped(), P = perDriver(), out = [];
       const add = (x) => { if (x) out.push(x); };
-      const scoped_ = [...byDriver(sc)].map(([d, ls]) => summarize(d, ls));
-      const liar = scoped_.filter((s) => s.n >= 4).sort((a, b) => (b.avg - b.median) - (a.avg - a.median))[0];
+      const scoped_ = driverRows(sc, scopedSums());
+      const liar = scoped_.filter((s) => s.real >= 4).sort((a, b) => (b.avg - b.median) - (a.avg - a.median))[0];
       if (liar && liar.avg - liar.median > 0.05)
         add(card("🤥", "EL PROMEDIO MIENTE", liar.driver, "+" + (liar.avg - liar.median).toFixed(2) + "s", "Promedio menos mediana: una vuelta pésima arruina todo.", "No es lento: un solo trompo le pesa en el alma."));
-      const shake = scoped_.filter((s) => s.n >= 3).sort((a, b) => b.cv - a.cv)[0];
+      const shake = scoped_.filter((s) => s.real >= 3).sort((a, b) => b.cv - a.cv)[0];
       if (shake) add(card("🫨", "ÍNDICE DE TEMBLOR", shake.driver, (shake.cv * 100).toFixed(1) + "%", "Variación (desv./promedio) de sus vueltas.", "Maneja como si el volante estuviera frío."));
       const ahora = pick(P, (x) => x.h.ahoraSi);
       if (ahora && ahora.h.ahoraSi > 0) add(card("💡", "AHORA SÍ", ahora.d, sgn(-ahora.h.ahoraSi, 2), "Mejora promedio entre su vuelta 1 y su vuelta 2.", "Recién ahí entendió que era una carrera."));
@@ -1159,7 +1233,7 @@
       if (last && scoped_.length > 1) add(card("🔭", "DE AQUÍ TE VEO, INSECTO", last.driver, "+" + (last.best - poleS.best).toFixed(2) + "s", "Distancia a la pole en el filtro actual.", "La pole le saluda desde el horizonte."));
       const sugar = pick(P, (x) => x.s.n); if (sugar)
         add(card("💸", "SUGARDADDY PAGA", sugar.d, sugar.s.n + " vueltas", sugar.h.count + " tandas, " + (sugar.s.n / sugar.h.count).toFixed(1) + " vueltas por tanda.", "Financia el kartódromo él solito."));
-      const gm = speedStats(sc);
+      const gm = speedStats(sc, scopedSums());
       if (gm) add(card("📡", "RADAR DEL GRUPO", "Velocidad media", fmtKmh(gm.avg), "Todas las vueltas del filtro actual, " + gm.km.toFixed(1) + " km en total.", speedJoke(gm.avg)));
       const record = [...byDate(trackLaps())].map(([d, arr]) => ({ d, best: Math.min(...arr.map((l) => l.seconds)) }));
       if (record.length > 1) {
@@ -1171,34 +1245,44 @@
 
     function renderDriver() {
       const d = ui.driver, set = (id, t) => { $(id).textContent = t; };
-      const ls = trackLaps().filter((l) => l.driver === d), body = $("driverLapsTableBody");
+      const ls = trackLaps().filter((l) => l.driver === d), ss = forDriver(trackSums(), d), body = $("driverLapsTableBody");
       body.replaceChildren(); $("driverExtraStats").replaceChildren();
-      if (!ls.length) {
+      if (!ls.length && !ss.length) {
         set("driverStatBestLap", "--.---"); set("driverStatBestLapDetail", "Sin vueltas en este filtro");
         set("driverStatAvgLap", "--.---"); set("driverStatLapsCount", "0 vueltas"); set("driverStatGapPole", "--"); set("driverStatGapComment", "--");
         set("driverStatWorstLap", "--.---"); set("driverStatWorstLapDetail", "--");
         body.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-500">Sin vueltas registradas para este piloto.</td></tr>';
         return;
       }
-      const s = summarize(d, ls), h = history(ls), rec = Math.min(...trackLaps().map((l) => l.seconds));
-      set("driverStatBestLap", formatLapTime(s.best)); set("driverStatBestLapDetail", s.bestDate + " (Vuelta #" + s.bestLap + ")");
+      const s = summarize(d, ls, ss), h = history(ls), rec = Math.min(...trackLaps().map((l) => l.seconds), ...trackSums().map((x) => x.best));
+      set("driverStatBestLap", formatLapTime(s.best)); set("driverStatBestLapDetail", s.bestDate + " (" + lapTag(s.bestLap) + ")");
       set("driverStatAvgLap", formatLapTime(s.avg)); set("driverStatLapsCount", s.n + " vueltas");
       set("driverStatGapPole", s.best === rec ? "RÉCORD" : "+" + (s.best - rec).toFixed(3) + "s");
       set("driverStatGapComment", s.best === rec ? "Dueño del récord de la pista" : "Distancia al récord de la pista");
-      set("driverStatWorstLap", formatLapTime(s.worst)); set("driverStatWorstLapDetail", s.worstLap.date + " (Vuelta #" + s.worstLap.lap + ")");
-      const spd = speedStats(ls);
+      set("driverStatWorstLap", s.worst === null ? "--.---" : formatLapTime(s.worst)); set("driverStatWorstLapDetail", s.worstLap ? s.worstLap.date + " (Vuelta #" + s.worstLap.lap + ")" : "Solo hay resúmenes de tanda");
+      const spd = speedStats(ls, ss);
       const extra = [
-        ["Promedio limpio", formatLapTime(s.clean)], ["Regularidad", "±" + s.sd.toFixed(3) + "s"], ["Trompos", String(s.spins)],
+        ["Promedio limpio", formatLapTime(s.clean)], ["Regularidad", s.sd === null ? "--" : "±" + s.sd.toFixed(3) + "s"], ["Trompos", String(s.spins)],
         ["Calentamiento", h.warm === null ? "--" : sgn(h.warm, 2)], ["Tendencia/tanda", h.fade === null ? "--" : sgn(h.fade) + "/vta"],
         ["Montaña rusa", h.jitter === null ? "--" : "±" + h.jitter.toFixed(2) + "s"], ["Evolución total", h.progress === null ? "--" : sgn(h.progress)],
         ["Velocidad media", fmtKmh(spd && spd.avg)], ["Velocidad punta", fmtKmh(spd && spd.top)], ["Km recorridos", spd ? spd.km.toFixed(1) + " km" : "--"],
-        ["Brecha pedal", "+" + (s.avg - s.best).toFixed(2) + "s"], ["Mediana", formatLapTime(s.median)], ["Tandas", String(h.count)],
+        ["Brecha pedal", "+" + (s.avg - s.best).toFixed(2) + "s"], ["Mediana", formatLapTime(s.median)], ["Tandas", String(new Set([...ls, ...ss].map((x) => x.date)).size)],
       ];
       extra.forEach(([k, v]) => {
         const el = document.createElement("div");
         el.className = "bg-slate-900/80 border border-slate-800 rounded-xl p-3";
         el.innerHTML = `<div class="text-[10px] font-mono text-slate-500 uppercase">${escapeHtml(k)}</div><div class="font-f1 text-sm font-bold text-white mt-1">${escapeHtml(v)}</div>`;
         $("driverExtraStats").appendChild(el);
+      });
+      ss.slice().sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)).forEach((x) => {
+        const delta = x.best - s.best, tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900 transition-colors";
+        tr.innerHTML = `<td class="px-4 py-2.5 text-slate-300">${escapeHtml(x.date)}</td><td class="px-4 py-2.5 text-slate-400">${escapeHtml(x.track)}</td>
+          <td class="px-4 py-2.5 text-center text-slate-400">Resumen · ${x.laps} vueltas</td>
+          <td class="px-4 py-2.5 text-right font-f1 font-bold ${delta === 0 ? "text-purple-400 glow-f1-purple" : "text-white"}">${formatLapTime(x.best)}</td>
+          <td class="px-4 py-2.5 text-right text-slate-400">Total ${escapeHtml(formatTotal(x.total))} · prom ${formatLapTime(x.total / x.laps)}</td>
+          <td class="px-4 py-2.5 text-center"><button type="button" data-del-sum="${escapeHtml(x.id)}" class="text-rose-500 hover:text-rose-300 p-1 text-xs" aria-label="Borrar resumen">🗑️</button></td>`;
+        body.appendChild(tr);
       });
       ls.slice().sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.lap - b.lap)).forEach((l) => {
         const delta = l.seconds - s.best, tr = document.createElement("tr");
@@ -1282,6 +1366,15 @@
     const openModal = (id) => $(id).classList.remove("hidden");
     const closeModal = (id) => $(id).classList.add("hidden");
     function showErr(id, msg) { const e = $(id); e.textContent = msg; e.classList.toggle("hidden", !msg); }
+    function setLapMode(m) {
+      const sum = m === "summary";
+      $("lapMode").value = m;
+      $("lapSummaryWrap").classList.toggle("hidden", !sum);
+      $("lapSingleWrap").classList.toggle("hidden", sum);
+      $("lapNumberWrap").classList.toggle("hidden", sum);
+      $("lapNumberInput").required = $("lapTimeInput").required = !sum;
+      ["summaryTotalInput", "summaryLapsInput", "summaryBestInput"].forEach((id) => { $(id).required = sum; });
+    }
     function suggestLap() {
       const d = $("lapDriverSelect").value, t = $("lapTrackSelect").value, dt = $("lapDateInput").value;
       const nums = db.laps.filter((l) => l.driver === d && l.track === t && l.date === dt).map((l) => l.lap);
@@ -1299,7 +1392,8 @@
       $("btnOpenLapModal").addEventListener("click", () => {
         if (!db.drivers.length) { toast("Primero agrega un piloto."); return; }
         showErr("lapError", ""); $("lapDateInput").value = ui.scope === "daily" && isValidDate(ui.date) ? ui.date : localDate();
-        $("lapTimeInput").value = ""; suggestLap(); openModal("modalLap");
+        $("lapTimeInput").value = ""; ["summaryTotalInput", "summaryLapsInput", "summaryBestInput"].forEach((id) => { $(id).value = ""; });
+        setLapMode("lap"); suggestLap(); openModal("modalLap");
       });
       $("btnOpenDriverModal").addEventListener("click", () => { showErr("driverError", ""); $("newDriverNameInput").value = ""; openModal("modalDriver"); $("newDriverNameInput").focus(); });
       $("btnOpenTrackModal").addEventListener("click", () => { showErr("trackError", ""); $("newTrackNameInput").value = ""; $("newTrackMetersInput").value = ""; openModal("modalTrack"); $("newTrackNameInput").focus(); });
@@ -1307,6 +1401,7 @@
       $("btnCloseDriverModal").addEventListener("click", () => closeModal("modalDriver"));
       $("btnCloseTrackModal").addEventListener("click", () => closeModal("modalTrack"));
       document.addEventListener("keydown", (e) => { if (e.key === "Escape") ["modalLap", "modalDriver", "modalTrack"].forEach(closeModal); });
+      $("lapMode").addEventListener("change", (e) => { showErr("lapError", ""); setLapMode(e.target.value); });
       ["lapDriverSelect", "lapTrackSelect", "lapDateInput"].forEach((id) => $(id).addEventListener("change", suggestLap));
 
       $("formLap").addEventListener("submit", (e) => {
@@ -1315,6 +1410,18 @@
         const lap = Number($("lapNumberInput").value), seconds = parseTime($("lapTimeInput").value);
         if (!db.drivers.includes(driver) || !db.tracks.includes(track)) return showErr("lapError", "Piloto o pista no válidos.");
         if (!isValidDate(date)) return showErr("lapError", "Fecha no válida.");
+        if ($("lapMode").value === "summary") {
+          const n = Number($("summaryLapsInput").value), total = parseTotal($("summaryTotalInput").value), best = parseTime($("summaryBestInput").value);
+          if (!Number.isInteger(n) || n < 1 || n > LIM.maxLap) return showErr("lapError", "El número de vueltas debe estar entre 1 y " + LIM.maxLap + ".");
+          if (best === null) return showErr("lapError", "Mejor vuelta no válida (ej. 43.520 o 1:02.150).");
+          if (total === null) return showErr("lapError", "Tiempo total no válido (ej. 6:16.000 o 1:02:10).");
+          if (total + 0.01 < best * n || total > LIM.maxS * n) return showErr("lapError", "El total no cuadra con " + n + " vueltas y esa mejor vuelta.");
+          if (db.summaries.length >= LIM.sums) return showErr("lapError", "Límite de resúmenes alcanzado.");
+          const rec = { id: newId(), date, driver, track, laps: n, total: Math.round(total * 1000) / 1000, best };
+          if (db.summaries.some((x) => [x.driver, x.track, x.date, x.laps, x.total].join("|") === [driver, track, date, n, rec.total].join("|"))) return showErr("lapError", "Ese resumen ya está registrado.");
+          db.summaries.push(rec); ui.date = date; ui.track = ui.track === ALL ? ALL : track; ui.scope = "daily"; ui.driver = driver;
+          save(); closeModal("modalLap"); refresh(); return toast("Resumen registrado: " + n + " vueltas, mejor " + formatLapTime(best) + "s");
+        }
         if (!Number.isInteger(lap) || lap < 1 || lap > LIM.maxLap) return showErr("lapError", "El número de vuelta debe estar entre 1 y " + LIM.maxLap + ".");
         if (seconds === null) return showErr("lapError", "Tiempo no válido (ej. 43.520 o 1:02.150, entre 10 s y 10 min).");
         if (db.laps.length >= LIM.laps) return showErr("lapError", "Límite de vueltas alcanzado.");
@@ -1357,6 +1464,8 @@
       $("h2hB").addEventListener("change", (e) => { ui.b = e.target.value; renderH2H(); });
 
       $("driverLapsTableBody").addEventListener("click", (e) => {
+        const sbtn = e.target.closest("[data-del-sum]");
+        if (sbtn) { db.summaries = db.summaries.filter((x) => x.id !== sbtn.dataset.delSum); save(); refresh(); toast("Resumen eliminado."); return; }
         const btn = e.target.closest("[data-del-lap]");
         if (!btn) return;
         db.laps = db.laps.filter((l) => l.id !== btn.dataset.delLap);
@@ -1365,14 +1474,14 @@
       $("btnDeleteDriver").addEventListener("click", () => {
         const d = ui.driver;
         if (!d || !confirm("¿Eliminar a " + d + " y todas sus vueltas?")) return;
-        db.drivers = db.drivers.filter((x) => x !== d); db.laps = db.laps.filter((l) => l.driver !== d);
+        db.drivers = db.drivers.filter((x) => x !== d); db.laps = db.laps.filter((l) => l.driver !== d); db.summaries = db.summaries.filter((x) => x.driver !== d);
         save(); refresh(); toast("Piloto eliminado.");
       });
 
       $("btnMoreActions").addEventListener("click", (e) => { e.stopPropagation(); $("moreMenu").classList.toggle("hidden"); });
       document.addEventListener("click", (e) => { if (!$("moreActionsDropdown").contains(e.target)) $("moreMenu").classList.add("hidden"); });
       $("btnExportJSON").addEventListener("click", () => {
-        download("karting_dashboard_" + localDate() + ".json", JSON.stringify({ app: "karting_dashboard", version: 2, drivers: db.drivers, tracks: db.tracks, trackMeters: db.trackMeters, laps: db.laps }, null, 2));
+        download("karting_dashboard_" + localDate() + ".json", JSON.stringify({ app: "karting_dashboard", version: 2, drivers: db.drivers, tracks: db.tracks, trackMeters: db.trackMeters, laps: db.laps, summaries: db.summaries }, null, 2));
         toast("Respaldo exportado.");
       });
       $("importFileInput").addEventListener("change", (e) => {
@@ -1385,7 +1494,7 @@
           try {
             const v = validateDatabase(JSON.parse(String(r.result)));
             if (!confirm("Se reemplazarán los datos actuales por " + v.laps.length + " vueltas y " + v.drivers.length + " pilotos" + (v.discarded ? " (" + v.discarded + " registros inválidos descartados)" : "") + ". ¿Continuar?")) return;
-            db = { drivers: v.drivers, tracks: v.tracks, laps: v.laps, trackMeters: v.trackMeters }; ui.track = ALL; save(); refresh(); toast("Datos restaurados.");
+            db = { drivers: v.drivers, tracks: v.tracks, laps: v.laps, summaries: v.summaries, trackMeters: v.trackMeters }; ui.track = ALL; save(); refresh(); toast("Datos restaurados.");
           } catch (err) { toast("No se pudo importar: archivo inválido."); }
         };
         r.onerror = () => toast("No se pudo leer el archivo.");
@@ -1393,14 +1502,14 @@
       });
       const demo = () => {
         if (db.laps.length && !confirm("Se reemplazarán los datos actuales por datos de ejemplo. ¿Continuar?")) return;
-        const v = demoDatabase(); db = { drivers: v.drivers, tracks: v.tracks, laps: v.laps, trackMeters: v.trackMeters }; ui.track = ALL; ui.scope = "daily"; ui.date = "";
+        const v = demoDatabase(); db = { drivers: v.drivers, tracks: v.tracks, laps: v.laps, summaries: v.summaries, trackMeters: v.trackMeters }; ui.track = ALL; ui.scope = "daily"; ui.date = "";
         save(); $("moreMenu").classList.add("hidden"); refresh(); toast("Datos de ejemplo cargados.");
       };
       $("btnLoadDemo").addEventListener("click", demo);
       $("btnDemoEmpty").addEventListener("click", demo);
       $("btnResetData").addEventListener("click", () => {
         if (!confirm("Se borrarán TODOS los pilotos, pistas y vueltas de este navegador. ¿Continuar?")) return;
-        db = { drivers: [], tracks: [DEFAULT_TRACK], laps: [], trackMeters: {} }; save(); $("moreMenu").classList.add("hidden"); refresh(); toast("Datos borrados.");
+        db = { drivers: [], tracks: [DEFAULT_TRACK], laps: [], summaries: [], trackMeters: {} }; save(); $("moreMenu").classList.add("hidden"); refresh(); toast("Datos borrados.");
       });
     }
 

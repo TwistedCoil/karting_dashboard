@@ -23,6 +23,7 @@ Los pilotos, pistas y vueltas se guardan en el `localStorage` de tu navegador; n
 - No se permiten dos vueltas con el mismo piloto, fecha, pista y número.
 - Cada **pista** es independiente: los tiempos de circuitos distintos no son comparables. La vista «Todas» mezcla pistas y lo advierte.
 - Al crear una pista puedes indicar sus **metros totales** (50–5000 m); con eso se calculan km/h (velocidad punta, media y km recorridos) en el podio, trofeos, tendencias y ficha del piloto. Para cambiar los metros de una pista existente, usa **+ Pista** con el mismo nombre y los nuevos metros.
+- **Pistas que solo dan un resumen** (tiempo total, nº de vueltas y mejor vuelta): en **Registrar Vuelta** elige «Resumen de tanda». Cuenta para mejor tiempo, promedio (total ÷ vueltas), km/h, puntos y posiciones. Regularidad, trompos y tendencias solo usan vueltas individuales (se muestran «--» si un piloto solo tiene resúmenes). Se borran desde la ficha del piloto.
 - **Importar JSON** valida todo (tipos, fechas reales, rangos, límites de 60 pilotos / 30 pistas / 20 000 vueltas / 5 MB), descarta las vueltas inválidas y pide confirmación antes de reemplazar tus datos.
 
 ## Estadísticas
